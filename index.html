@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#FFF9EF" />
+<title>অ্যাডমিন — ত্রিকোণমিতি লার্নিং</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root{
+    --bg:#FFF9EF; --ink:#26241F; --muted:#8B8676; --soft:#F4EEE0; --card:#FFFFFF; --line:#EDE6D4;
+    --orange:#FF7A59; --orange-soft:#FFE7DE;
+    --blue:#4C6EF5; --blue-soft:#E3E8FD;
+    --yellow:#F2B441; --yellow-soft:#FCEFD6;
+    --green:#2FA86B; --green-soft:#DFF3E9;
+    --red:#E5484D; --red-soft:#FCEAEA;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#EDE6D6;
+    font-family:'Hind Siliguri',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+  }
+  button, input{ font-family:inherit; }
+  #shell{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--bg);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  #view{
+    flex:1;
+    padding-bottom:86px;
+    min-height:100vh;
+  }
+  a{ color:inherit; }
+  .row{ display:flex; align-items:center; }
+  .between{ justify-content:space-between; }
+  .center{ justify-content:center; align-items:center; }
+  .col{ display:flex; flex-direction:column; }
+  .muted{ color:var(--muted); }
+  .bold{ font-weight:700; }
+  .xbold{ font-weight:800; }
+  .btn{
+    border:none; border-radius:16px; cursor:pointer;
+    font-family:inherit; font-weight:800; font-size:15px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--orange); color:#fff; padding:15px; width:100%; }
+  .btn-primary[disabled]{ background:var(--soft); color:#C4BDAA; cursor:not-allowed; }
+  .btn-dark{ background:var(--ink); color:#fff; padding:13px; width:100%; }
+  .btn-dark[disabled]{ background:var(--line); color:var(--muted); cursor:default; }
+  .icon-btn{
+    width:34px; height:34px; border-radius:11px; border:none; background:var(--soft);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); flex-shrink:0;
+  }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:16px; }
+  .pill{ border-radius:999px; padding:4px 10px; font-size:12px; font-weight:800; display:inline-flex; align-items:center; gap:4px; }
+  .field-label{ font-size:12px; color:var(--muted); font-weight:700; margin-bottom:6px; }
+  .field-input{
+    width:100%; border:none; outline:none; background:var(--soft); border-radius:10px;
+    padding:11px 13px; font-size:14px; color:var(--ink); font-family:inherit;
+  }
+  .topbar{ padding:16px 20px 8px; }
+  .brandmark{
+    width:40px; height:36px; border-radius:10px; background:var(--orange);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#fff; font-weight:800; font-size:13px;
+  }
+  .hairline{ height:1px; background:var(--line); border:none; margin:0; }
+  ::selection{ background:var(--orange-soft); }
+  input:focus{ outline:2px solid var(--orange); outline-offset:1px; }
+  button:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+
+  /* bottom nav */
+  #bottomnav{
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:480px; background:#FFFDF7; border-top:1px solid var(--line);
+    display:flex; padding:10px 6px calc(14px + env(safe-area-inset-bottom));
+    z-index:40;
+  }
+  #bottomnav button{
+    flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+    cursor:pointer; color:#B4AE9E; padding:4px 0;
+  }
+  #bottomnav button.active{ color:var(--orange); }
+  #bottomnav button.active svg{ stroke-width:2.6; }
+  #bottomnav .navlabel{ font-size:10.5px; font-weight:600; }
+  #bottomnav button.active .navlabel{ font-weight:800; }
+
+  .toast{
+    position:fixed; bottom:96px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:11px 18px; border-radius:999px;
+    font-size:13px; font-weight:700; z-index:100; box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+    max-width:88%; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-6px); }
+
+  .spin{ animation:spin 0.8s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="view"></div>
+  <div id="bottomnav" style="display:none"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   ত্রিকোণমিতি লার্নিং — মোবাইল-ফার্স্ট LMS ওয়েব অ্যাপ
+   ডেটা Supabase (Postgres) দিয়ে সংরক্ষিত হয় — সব ডিভাইস/ব্রাউজার থেকে
+   অ্যাক্সেসযোগ্য। সেশন তথ্য (কে লগইন আছে) শুধু এই ডিভাইসের localStorage-এ থাকে।
+   ডেমো লেভেল: সত্যিকার পেমেন্ট গেটওয়ে বা OTP লগইন নেই।
+
+   *** ব্যবহারের আগে অবশ্যই নিচের SUPABASE_URL ও SUPABASE_ANON_KEY পূরণ করুন ***
+   ========================================================= */
+
+const SUPABASE_URL = "https://rgppbokodspvoymtpowb.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncHBib2tvZHNwdm95bXRwb3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTg4NjcsImV4cCI6MjEwMTk3NDg2N30.p-dIbfxsQF-Y-Zl2DbYGhtyePnkMPF2LHVqGrRGcPRQ";
+
+const supabaseClient = (SUPABASE_URL.startsWith('http') && window.supabase)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+const STORAGE_BUCKET = "lms-uploads";
+
+// ফাইলকে Supabase Storage-এ আপলোড করে পাবলিক URL রিটার্ন করে
+async function uploadToStorage(file, folder){
+  if (!supabaseClient){ toast('Supabase সংযোগ নেই'); return null; }
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
+    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${safeName}`;
+    const { error } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(path, file, { upsert:true, contentType:file.type||undefined });
+    if (error){ toast('আপলোড ব্যর্থ হয়েছে: ' + error.message); return null; }
+    const { data } = supabaseClient.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+    return data.publicUrl;
+  } catch(e){
+    toast('আপলোড ব্যর্থ হয়েছে');
+    return null;
+  }
+}
+
+// একটা URL-input এর নিচে "ফাইল আপলোড করুন" বাটন বসায়। ফাইল সিলেক্ট হলে আপলোড করে input-এ URL বসিয়ে দেয়।
+function attachUploadWidget(containerId, urlInputId, folder, accept, label){
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const wrapId = urlInputId + '-upload-wrap';
+  container.insertAdjacentHTML('beforeend', `
+    <div id="${wrapId}" style="margin:-2px 0 10px;">
+      <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border:1.5px dashed var(--line);border-radius:10px;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);">
+        <span id="${wrapId}-txt">${icon('upload',14)} ${label||'ফোন থেকে ফাইল আপলোড করুন'}</span>
+        <input type="file" id="${wrapId}-input" accept="${accept}" style="display:none;" />
+      </label>
+    </div>`);
+  const fileInput = document.getElementById(wrapId+'-input');
+  const txt = document.getElementById(wrapId+'-txt');
+  fileInput.onchange = async ()=>{
+    const file = fileInput.files[0];
+    if (!file) return;
+    txt.innerHTML = `${icon('loader',14)} আপলোড হচ্ছে...`;
+    const url = await uploadToStorage(file, folder);
+    if (url){
+      const urlInput = document.getElementById(urlInputId);
+      urlInput.value = url;
+      urlInput.dispatchEvent(new Event('input'));
+      toast('ফাইল আপলোড সম্পন্ন ✓');
+      txt.innerHTML = `${icon('checkcircle',14)} আপলোড সম্পন্ন — আবার আপলোড করতে ট্যাপ করুন`;
+    } else {
+      txt.innerHTML = `${icon('upload',14)} ${label||'ফোন থেকে ফাইল আপলোড করুন'}`;
+    }
+  };
+}
+
+const SAMPLE_PDF = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+const ADMIN_PASSCODE = "admin123";
+const PAYMENT_METHOD_LABELS = { bkash:'বিকাশ', nagad:'নগদ', rocket:'Rocket', card:'কার্ড' };
+
+const DEFAULT_TOPICS = [
+  { id:"ratio", name:"ত্রিকোণমিতিক অনুপাত (অনু: ৯.১)", color:"#FF7A59", soft:"#FFE7DE",
+    lessons:[
+      { id:"r1", title:"প্রাথমিক আলোচনা", duration:"১২ মিনিট", published:true, views:342, videoUrl:"https://youtu.be/9KlFaPk3YvI" },
+      { id:"r2", title:"টাইপ - A", duration:"১৬ মিনিট", published:true, views:288, videoUrl:"" },
+      { id:"r3", title:"টাইপ - B", duration:"১৪ মিনিট", published:true, views:201, videoUrl:"" },
+      { id:"r4", title:"টাইপ - C", duration:"১৫ মিনিট", published:true, views:156, videoUrl:"" },
+      { id:"r5", title:"টাইপ - D", duration:"১৩ মিনিট", published:false, views:0, videoUrl:"" },
+    ]},
+  { id:"identity", name:"ত্রিকোণমিতিক অভেদ (অনু: ৯.২)", color:"#4C6EF5", soft:"#E3E8FD",
+    lessons:[
+      { id:"i1", title:"প্রাথমিক আলোচনা", duration:"১৫ মিনিট", published:true, views:271, videoUrl:"" },
+      { id:"i2", title:"টাইপ: A", duration:"১৮ মিনিট", published:true, views:203, videoUrl:"" },
+      { id:"i3", title:"টাইপ: B", duration:"১৪ মিনিট", published:true, views:168, videoUrl:"" },
+      { id:"i4", title:"টাইপ: C", duration:"১৩ মিনিট", published:false, views:0, videoUrl:"" },
+    ]},
+  { id:"height-distance", name:"দূরত্ব ও উচ্চতা (অনু: ৯.৩)", color:"#F2B441", soft:"#FCEFD6",
+    lessons:[
+      { id:"h1", title:"প্রাথমিক আলোচনা", duration:"১১ মিনিট", published:true, views:189, videoUrl:"" },
+      { id:"h2", title:"টাইপ : A", duration:"১৩ মিনিট", published:true, views:134, videoUrl:"" },
+      { id:"h3", title:"টাইপ : B", duration:"১৯ মিনিট", published:true, views:97, videoUrl:"" },
+    ]},
+];
+
+const DEFAULT_NOTES = [
+  { id:"n1", topicId:"ratio", title:"ত্রিকোণমিতিক অনুপাত — সূত্র শীট", pages:4, size:"১.২ MB", url:SAMPLE_PDF, published:true },
+  { id:"n2", topicId:"ratio", title:"টাইপ A–D অনুশীলনী সমাধান", pages:10, size:"২.৪ MB", url:SAMPLE_PDF, published:true },
+  { id:"n3", topicId:"identity", title:"ত্রিকোণমিতিক অভেদ — গুরুত্বপূর্ণ সূত্র", pages:6, size:"১.৫ MB", url:SAMPLE_PDF, published:true },
+  { id:"n4", topicId:"height-distance", title:"দূরত্ব ও উচ্চতা — চিত্রসহ নোট", pages:12, size:"৩.১ MB", url:SAMPLE_PDF, published:true },
+];
+
+const DEFAULT_BOARD_QUESTIONS = (function(){
+  const boards = ["ঢাকা বোর্ড","রাজশাহী বোর্ড","চট্টগ্রাম বোর্ড","খুলনা বোর্ড","বরিশাল বোর্ড","সিলেট বোর্ড","কুমিল্লা বোর্ড","দিনাজপুর বোর্ড","যশোর বোর্ড","মাদ্রাসা বোর্ড"];
+  const bnDigits = ["০","১","২","৩","৪","৫","৬","৭","৮","৯"];
+  function toBn(n){ return String(n).split('').map(c=>bnDigits[+c]).join(''); }
+  const slug = { "ঢাকা বোর্ড":"dhaka","রাজশাহী বোর্ড":"rajshahi","চট্টগ্রাম বোর্ড":"chattogram","খুলনা বোর্ড":"khulna","বরিশাল বোর্ড":"barisal","সিলেট বোর্ড":"sylhet","কুমিল্লা বোর্ড":"comilla","দিনাজপুর বোর্ড":"dinajpur","যশোর বোর্ড":"jessore","মাদ্রাসা বোর্ড":"madrasah" };
+  const out = [];
+  boards.forEach(board=>{
+    for (let y=2026; y>=2015; y--){
+      out.push({ id:`bq-${slug[board]}-${y}`, year: toBn(y), board, title:"এসএসসি — গণিত (ত্রিকোণমিতি অংশ)", url:SAMPLE_PDF, published:true });
+    }
+  });
+  return out;
+})();
+
+/* ---------- tiny icon set (inline SVG, stroke=currentColor) ---------- */
+function icon(name, size){
+  size = size || 20;
+  const P = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+  const paths = {
+    home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/>',
+    book: '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M4 4.5v15A2.5 2.5 0 0 0 6.5 22H20"/>',
+    chart: '<path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 5-7"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6"/>',
+    chevronleft: '<path d="M15 18l-6-6 6-6"/>',
+    chevronright: '<path d="M9 18l6-6-6-6"/>',
+    play: '<path d="M6 4l14 8-14 8V4z"/>',
+    check: '<path d="M20 6L9 17l-5-5"/>',
+    checkcircle: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    file: '<path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/>',
+    download: '<path d="M12 3v13"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/>',
+    clipboard: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 11h6"/><path d="M9 15h6"/>',
+    plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+    trash: '<path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>',
+    x: '<path d="M18 6L6 18"/><path d="M6 6l12 12"/>',
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+    eyeoff: '<path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a15.6 15.6 0 0 1-3.1 4"/><path d="M6.3 6.3C3.7 8 2 12 2 12s3.5 7 10 7c1.6 0 3-.3 4.2-.8"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/>',
+    flame: '<path d="M12 2s-6 5.5-6 11a6 6 0 0 0 12 0c0-2-1-3.5-2-4.5.3 1.3-.3 2.3-1 2.5C15.4 9 15 6.5 12 2z"/>',
+    award: '<circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 22l5-3 5 3-1.5-9.5"/>',
+    bell: '<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 21a2 2 0 0 0 4 0"/>',
+    star: '<path d="M12 2l3 6.5 7 .8-5.2 4.8L18.2 21 12 17.3 5.8 21l1.4-6.9L2 9.3l7-.8z"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+    smartphone: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+    shield: '<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
+    card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+    arrowright: '<path d="M5 12h14"/><path d="M13 5l7 7-7 7"/>',
+    layout: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><circle cx="17" cy="9" r="2.8"/><path d="M15.5 14.3c2.4.3 4 2 4.8 5.7"/>',
+    wallet: '<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="15" r="1.4"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+    phone: '<path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v4a2 2 0 0 1-2 2C9.5 21 3 14.5 3 6a2 2 0 0 1 1-2z"/>',
+    graduationcap: '<path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11.5V17c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 9v6"/>',
+    xcircle: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/>',
+    video: '<rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 9.5l5-3v11l-5-3"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+    pencil: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+    upload: '<path d="M12 21V8"/><path d="M7 13l5-5 5 5"/><path d="M4 21h16"/>',
+    loader: '<path d="M12 3v3"/><path d="M12 18v3"/><path d="M4.9 4.9l2.1 2.1"/><path d="M17 17l2.1 2.1"/><path d="M3 12h3"/><path d="M18 12h3"/><path d="M4.9 19.1l2.1-2.1"/><path d="M17 7l2.1-2.1"/>',
+  };
+  return `<svg ${P}>${paths[name]||''}</svg>`;
+}
+
+/* ---------- storage helpers ----------
+   শেয়ার্ড ডেটা (topics/notes/students) -> Supabase টেবিল 'lms_kv' (key/value, jsonb)
+   লোকাল ডেটা (এই ডিভাইসের সেশন) -> ব্রাউজার localStorage
+------------------------------------------------------------- */
+let _configWarned = false;
+function warnIfNotConfigured(){
+  if (!supabaseClient && !_configWarned){
+    _configWarned = true;
+    console.error('Supabase কনফিগার করা হয়নি — কোডের উপরের দিকে SUPABASE_URL ও SUPABASE_ANON_KEY পূরণ করুন।');
+    toast('Supabase কনফিগার করা হয়নি — সেটআপ নির্দেশিকা দেখুন');
+  }
+}
+
+async function loadShared(key, fallback){
+  if (!supabaseClient){ warnIfNotConfigured(); return fallback; }
+  try{
+    const { data, error } = await supabaseClient
+      .from('lms_kv')
+      .select('value')
+      .eq('key', key)
+      .maybeSingle();
+    if (error || !data) return fallback;
+    return data.value;
+  }catch(e){ console.error('loadShared failed', key, e); return fallback; }
+}
+async function saveShared(key, value){
+  if (!supabaseClient){ warnIfNotConfigured(); return; }
+  try{
+    const { error } = await supabaseClient
+      .from('lms_kv')
+      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    if (error) console.error('saveShared failed', key, error);
+  }catch(e){ console.error('saveShared failed', key, e); }
+}
+async function deleteShared(key){
+  if (!supabaseClient){ warnIfNotConfigured(); return false; }
+  try{
+    const { error } = await supabaseClient.from('lms_kv').delete().eq('key', key);
+    if (error){ console.error('deleteShared failed', key, error); return false; }
+    return true;
+  }catch(e){ console.error('deleteShared failed', key, e); return false; }
+}
+async function loadLocal(key, fallback){
+  try{
+    const v = localStorage.getItem(key);
+    return v !== null ? JSON.parse(v) : fallback;
+  }catch(e){ return fallback; }
+}
+async function saveLocal(key, value){
+  try{
+    if (value === null || value === undefined) localStorage.removeItem(key);
+    else localStorage.setItem(key, JSON.stringify(value));
+  }catch(e){ console.error('saveLocal failed', key, e); }
+}
+
+/* ---------- global state ---------- */
+const S = {
+  loaded:false,
+  topics: [], notes: [], boardQuestions: [],
+  studentsIndex: [],   // array of phone numbers (shared)
+  currentPhone: null,  // logged in student's phone (local)
+  currentStudent: null,// {phone,name,cls,school,joined,paid,completed:[ids]}
+  role: null,           // 'student' | 'admin' | null
+  screen: 'landing',
+  activeTopicId: null,
+  activeBoardYear: null,
+  activeBoardName: null,
+  activeLessonId: null,
+  homeView: 'dashboard',
+  studentTab: 'home',
+  adminAuthed: false,
+  adminScreen: 'dashboard',
+  adminContentTab: 'video',
+  selectedStudentPhone: null,
+  busy:false,
+};
+
+function todayLabel(){
+  const d = new Date();
+  const months = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+  const bn = ["০","১","২","৩","৪","৫","৬","৭","৮","৯"];
+  const num = String(d.getDate()).split('').map(c=>bn[+c]).join('');
+  return `${num} ${months[d.getMonth()]}`;
+}
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+function normPhone(p){ return (p||'').replace(/\D/g,''); }
+
+/* ---------- boot ---------- */
+async function boot(){
+  const [topics, notes, bq, idx, savedPhone] = await Promise.all([
+    loadShared('lms:topics', null),
+    loadShared('lms:notes', null),
+    loadShared('lms:boardquestions', null),
+    loadShared('lms:students:index', []),
+    loadLocal('lms:session:phone', null),
+  ]);
+  S.topics = topics || DEFAULT_TOPICS;
+  S.notes = notes || DEFAULT_NOTES;
+  S.boardQuestions = bq || DEFAULT_BOARD_QUESTIONS;
+  S.studentsIndex = idx || [];
+  if (!topics) await saveShared('lms:topics', S.topics);
+  if (!notes) await saveShared('lms:notes', S.notes);
+  if (!bq) await saveShared('lms:boardquestions', S.boardQuestions);
+
+  if (savedPhone){
+    const rec = await loadShared('lms:student:'+savedPhone, null);
+    if (rec){
+      S.currentPhone = savedPhone;
+      S.currentStudent = rec;
+      S.role = 'student';
+      S.screen = 'app';
+      S.activeTopicId = S.topics[0] ? S.topics[0].id : null;
+    }
+  }
+  S.role = 'admin';
+  S.screen = 'app';
+  S.loaded = true;
+  render();
+}
+
+/* ---------- student data ops ---------- */
+async function registerOrLoadStudent(phone, name, cls, school, guardianPhone, address){
+  const key = 'lms:student:'+phone;
+  let rec = await loadShared(key, null);
+  if (!rec){
+    rec = { phone, name: name||'', cls: cls||'নবম-দশম', school: school||'', guardianPhone: guardianPhone||'', address: address||'', joined: todayLabel(), paid:false, paymentMethod:null, completed:[] };
+    await saveShared(key, rec);
+    if (!S.studentsIndex.includes(phone)){
+      S.studentsIndex.push(phone);
+      await saveShared('lms:students:index', S.studentsIndex);
+    }
+  }
+  return rec;
+}
+async function saveCurrentStudent(){
+  if (!S.currentStudent) return;
+  await saveShared('lms:student:'+S.currentStudent.phone, S.currentStudent);
+}
+
+/* ---------- derived helpers ---------- */
+function visibleTopics(){
+  return S.topics.map(t=>({...t, lessons: t.lessons.filter(l=>l.published!==false)}));
+}
+function visibleNotes(){ return S.notes.filter(n=>n.published!==false); }
+function visibleBoardQuestions(){ return S.boardQuestions.filter(q=>q.published!==false); }
+function getTopic(id){ return S.topics.find(t=>t.id===id); }
+function totalPublishedLessons(){ return visibleTopics().reduce((a,t)=>a+t.lessons.length,0); }
+function totalDoneCount(){
+  if (!S.currentStudent) return 0;
+  const validIds = new Set(visibleTopics().flatMap(t=>t.lessons.map(l=>t.id+'::'+l.id)));
+  return (S.currentStudent.completed||[]).filter(k=>validIds.has(k)).length;
+}
+function isLessonDone(topicId, lessonId){
+  return !!(S.currentStudent && (S.currentStudent.completed||[]).includes(topicId+'::'+lessonId));
+}
+function ytEmbed(url){
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+}
+function isDirectVideo(url){
+  if (!url) return false;
+  return /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url) || url.includes('/storage/v1/object/public/');
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  const view = document.getElementById('view');
+  const nav = document.getElementById('bottomnav');
+
+  if (!S.loaded){
+    view.innerHTML = renderLoading();
+    nav.style.display = 'none';
+    return;
+  }
+
+  if (S.screen === 'landing'){
+    view.innerHTML = renderLanding();
+    nav.style.display = 'none';
+    wireLanding();
+    return;
+  }
+
+  if (S.role === 'student'){
+    nav.style.display = S.screen === 'lesson' ? 'none' : 'flex';
+    if (S.screen === 'lesson'){
+      view.innerHTML = renderLesson();
+      wireLesson();
+    } else {
+      view.innerHTML = renderStudentScreen();
+      wireStudentScreen();
+      nav.innerHTML = renderStudentNav();
+      wireStudentNav();
+    }
+    return;
+  }
+
+  if (S.role === 'admin'){
+    if (!S.adminAuthed){
+      view.innerHTML = renderAdminLogin();
+      nav.style.display = 'none';
+      wireAdminLogin();
+      return;
+    }
+    nav.style.display = 'flex';
+    view.innerHTML = renderAdminScreen();
+    wireAdminScreen();
+    nav.innerHTML = renderAdminNav();
+    wireAdminNav();
+    return;
+  }
+}
+
+function renderLoading(){
+  return `<div class="col center" style="min-height:100vh;">
+    <div style="color:var(--muted);font-weight:700;font-size:13px;" class="row" style="gap:8px;">
+      <span class="spin" style="display:inline-flex;color:var(--orange);">${icon('flame',20)}</span>
+      &nbsp;লোড হচ্ছে…
+    </div>
+  </div>`;
+}
+
+/* ---------- landing / role select ---------- */
+function renderLanding(){
+  return `
+  <div class="col" style="min-height:100vh; padding:56px 26px 36px; background:linear-gradient(180deg,#FFF9EF 0%,#FFF3E4 100%);">
+    <div class="brandmark" style="width:56px;height:56px;border-radius:18px;font-size:24px;margin-bottom:22px;">এস</div>
+    <div style="font-size:24px;font-weight:800;line-height:1.35;">ত্রিকোণমিতি লার্নিং</div>
+    <div class="muted" style="font-size:13.5px;margin-top:4px;margin-bottom:30px;">নবম-দশম শ্রেণী · গণিত — যেকোনো মোবাইল থেকে ব্যবহার করুন</div>
+
+    <button class="card" id="pick-student" style="padding:16px 18px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;margin-bottom:12px;">
+      <div style="width:46px;height:46px;border-radius:14px;background:var(--orange-soft);color:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('graduationcap',22)}</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:800;">শিক্ষার্থী</div>
+        <div class="muted" style="font-size:11.5px;font-weight:600;margin-top:2px;">ক্লাস দেখুন, নোট নিন, অগ্রগতি ট্র্যাক করুন</div>
+      </div>
+      <span style="color:var(--muted);">${icon('chevronright',18)}</span>
+    </button>
+
+    <button class="card" id="pick-admin" style="padding:16px 18px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;">
+      <div style="width:46px;height:46px;border-radius:14px;background:var(--blue-soft);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('layout',22)}</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:800;">অ্যাডমিন</div>
+        <div class="muted" style="font-size:11.5px;font-weight:600;margin-top:2px;">শিক্ষার্থী ও কনটেন্ট পরিচালনা করুন</div>
+      </div>
+      <span style="color:var(--muted);">${icon('chevronright',18)}</span>
+    </button>
+
+    <div style="flex:1;"></div>
+    <div class="muted" style="font-size:11px;text-align:center;line-height:1.7;">
+      এটি একটি ডেমো সংস্করণ — লগইন ও পেমেন্ট সত্যিকার গেটওয়ে ছাড়া কাজ করে,<br/>তবে আপনার ডেটা এই ব্রাউজারে/অ্যাপে সংরক্ষিত থাকে।
+    </div>
+  </div>`;
+}
+function wireLanding(){
+  document.getElementById('pick-student').onclick = ()=>{ S.screen='student-login'; renderStudentEntry(); };
+  document.getElementById('pick-admin').onclick = ()=>{ S.role='admin'; S.screen='app'; render(); };
+}
+function renderStudentEntry(){
+  const view = document.getElementById('view');
+  view.innerHTML = `
+  <div class="col" style="min-height:100vh; padding:56px 26px 36px; background:linear-gradient(180deg,#FFF9EF 0%,#FFF3E4 100%);">
+    <button class="icon-btn" id="back-landing" style="margin-bottom:18px;">${icon('chevronleft',18)}</button>
+    <div class="brandmark" style="width:56px;height:56px;border-radius:18px;font-size:24px;margin-bottom:22px;">এস</div>
+    <div style="font-size:24px;font-weight:800;">স্বাগতম</div>
+    <div class="muted" style="font-size:13.5px;margin-top:4px;margin-bottom:26px;">মোবাইল নম্বর দিয়ে প্রবেশ করুন</div>
+
+    <div class="field-label">মোবাইল নম্বর</div>
+    <div class="row" style="gap:10px;background:var(--soft);border-radius:14px;padding:13px 15px;margin-bottom:14px;">
+      ${icon('smartphone',18)}
+      <input id="phone-input" type="tel" placeholder="০১৭ XX XXX XXX" style="border:none;outline:none;background:transparent;flex:1;font-size:15px;font-weight:700;color:var(--ink);" />
+    </div>
+    <div id="name-fields" style="display:none;">
+      <div class="field-label">নাম</div>
+      <input id="name-input" class="field-input" placeholder="আপনার নাম লিখুন" style="margin-bottom:12px;" />
+      <div class="field-label">শ্রেণী</div>
+      <div class="row" style="gap:8px;margin-bottom:16px;">
+        <button data-cls="নবম" class="cls-btn card" style="flex:1;padding:10px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;">নবম</button>
+        <button data-cls="দশম" class="cls-btn card" style="flex:1;padding:10px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;">দশম</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="continue-btn" disabled>চালিয়ে যান ${icon('arrowright',18)}</button>
+    <div class="muted" style="font-size:11.5px;text-align:center;margin-top:14px;line-height:1.6;">
+      নতুন নম্বর হলে সাথে সাথে অ্যাকাউন্ট তৈরি হবে
+    </div>
+  </div>`;
+
+  let chosenCls = 'নবম';
+  document.getElementById('back-landing').onclick = ()=>{ S.screen='landing'; render(); };
+  const phoneInput = document.getElementById('phone-input');
+  const nameFields = document.getElementById('name-fields');
+  const nameInput = document.getElementById('name-input');
+  const continueBtn = document.getElementById('continue-btn');
+  let existingRecord = null;
+
+  view.querySelectorAll('.cls-btn').forEach(b=>{
+    b.onclick = ()=>{
+      chosenCls = b.dataset.cls;
+      view.querySelectorAll('.cls-btn').forEach(x=>{ x.style.background='var(--card)'; x.style.color='var(--ink)'; x.style.border='1px solid var(--line)'; });
+      b.style.background = 'var(--orange)'; b.style.color = '#fff'; b.style.border='1px solid var(--orange)';
+    };
+  });
+  view.querySelector('[data-cls="নবম"]').click();
+
+  async function checkPhone(){
+    const p = normPhone(phoneInput.value);
+    if (p.length < 11){ continueBtn.disabled = true; nameFields.style.display='none'; return; }
+    existingRecord = await loadShared('lms:student:'+p, null);
+    if (existingRecord){
+      nameFields.style.display = 'none';
+      continueBtn.disabled = false;
+      continueBtn.innerHTML = `স্বাগতম, ${existingRecord.name || 'শিক্ষার্থী'} ${icon('arrowright',18)}`;
+    } else {
+      nameFields.style.display = 'block';
+      continueBtn.innerHTML = `চালিয়ে যান ${icon('arrowright',18)}`;
+      continueBtn.disabled = !nameInput.value.trim();
+    }
+  }
+  phoneInput.addEventListener('input', checkPhone);
+  nameInput.addEventListener('input', ()=>{
+    continueBtn.disabled = !nameInput.value.trim() || normPhone(phoneInput.value).length < 11;
+  });
+
+  continueBtn.onclick = async ()=>{
+    const p = normPhone(phoneInput.value);
+    if (p.length < 11) return;
+    continueBtn.disabled = true;
+    continueBtn.innerHTML = `<span class="spin" style="display:inline-flex;">${icon('flame',16)}</span> লোড হচ্ছে…`;
+    const rec = existingRecord || await registerOrLoadStudent(p, nameInput.value, chosenCls, '');
+    S.currentPhone = p;
+    S.currentStudent = rec;
+    S.role = 'student';
+    S.screen = 'app';
+    S.activeTopicId = S.topics[0] ? S.topics[0].id : null;
+    await saveLocal('lms:session:phone', p);
+    render();
+  };
+}
+
+/* ---------- student shell ---------- */
+function renderStudentNav(){
+  const items = [
+    {id:'home', label:'হোম', icon:'home'},
+    {id:'progress', label:'প্রগ্রেস', icon:'chart'},
+    {id:'profile', label:'প্রোফাইল', icon:'user'},
+  ];
+  return items.map(it=>`
+    <button data-tab="${it.id}" class="${S.studentTab===it.id?'active':''}">
+      ${icon(it.icon, 20)}
+      <span class="navlabel">${it.label}</span>
+    </button>`).join('');
+}
+function wireStudentNav(){
+  document.querySelectorAll('#bottomnav button').forEach(b=>{
+    b.onclick = ()=>{
+      S.studentTab = b.dataset.tab;
+      if (S.studentTab==='home') S.homeView='dashboard';
+      render();
+    };
+  });
+}
+
+function renderStudentScreen(){
+  if (S.studentTab === 'progress') return renderProgress();
+  if (S.studentTab === 'profile') return renderProfile();
+  if (S.homeView === 'pdfNotes') return renderPdfNotes();
+  if (S.homeView === 'boardQuestions') return renderBoardQuestions();
+  if (S.homeView === 'courses') return renderCourses();
+  return renderStudentDashboard();
+}
+function wireStudentScreen(){
+  if (S.studentTab === 'progress') return;
+  if (S.studentTab === 'profile') return wireProfile();
+  if (S.homeView === 'pdfNotes') return wireBack('back-pdf', ()=>{ S.homeView='dashboard'; render(); });
+  if (S.homeView === 'boardQuestions') return wireBoardQuestions();
+  if (S.homeView === 'courses') return wireCourses();
+  return wireStudentDashboard();
+}
+function wireBack(id, fn){ const el = document.getElementById(id); if (el) el.onclick = fn; }
+
+function renderStudentDashboard(){
+  const name = (S.currentStudent && S.currentStudent.name) || 'শিক্ষার্থী';
+  const cards = [
+    {id:'courses', title:'ভিডিও ক্লাস', desc:'টপিকভিত্তিক পাঠ দেখুন', icn:'video', color:'#FF7A59', soft:'#FFE7DE'},
+    {id:'pdfNotes', title:'পিডিএফ নোট', desc:'ডাউনলোডযোগ্য লিখিত নোট', icn:'file', color:'#4C6EF5', soft:'#E3E8FD'},
+    {id:'boardQuestions', title:'এসএসসি বোর্ড প্রশ্ন', desc:'বিগত বছরের প্রশ্নপত্র', icn:'clipboard', color:'#2FA86B', soft:'#DFF3E9'},
+    {id:'profile', title:'প্রোফাইল', desc:'অগ্রগতি ও সেটিংস', icn:'user', color:'#F2B441', soft:'#FCEFD6'},
+  ];
+  const totalDone = totalDoneCount(), totalLessons = totalPublishedLessons();
+  return `
+  <div style="padding-top:24px;">
+    <div class="topbar row between">
+      <div>
+        <div class="muted" style="font-size:13px;font-weight:600;">নবম-দশম শ্রেণী · গণিত</div>
+        <div style="font-size:22px;font-weight:800;">স্বাগতম ${name} 👋</div>
+      </div>
+      <div class="brandmark">এস</div>
+    </div>
+
+    <div style="padding:14px 20px 6px;">
+      <div class="row between" style="background:var(--ink);border-radius:18px;padding:16px 18px;color:#fff;">
+        <div>
+          <div style="font-size:11.5px;color:#C9C4B4;font-weight:600;">আপনার অগ্রগতি</div>
+          <div style="font-size:20px;font-weight:800;margin-top:2px;">${totalDone}<span style="font-size:13px;color:#C9C4B4;font-weight:700;">/${totalLessons} পাঠ সম্পন্ন</span></div>
+        </div>
+        <span style="color:#F2B441;">${icon('flame',24)}</span>
+      </div>
+    </div>
+
+    ${!S.currentStudent.paid ? `
+    <div style="padding:14px 20px 0;">
+      <div class="row between" style="background:var(--yellow-soft);border-radius:16px;padding:13px 16px;">
+        <div style="font-size:12.5px;font-weight:700;color:#9A6A0E;">ভর্তি ফি বকেয়া আছে — প্রোফাইল থেকে পরিশোধ করুন</div>
+      </div>
+    </div>` : ''}
+
+    <div style="padding:16px 20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      ${cards.map(c=>`
+        <button class="card feature-card" data-view="${c.id}" style="padding:18px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;cursor:pointer;text-align:left;min-height:128px;">
+          <div style="width:42px;height:42px;border-radius:12px;background:${c.soft};display:flex;align-items:center;justify-content:center;color:${c.color};">${icon(c.icn,21)}</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;">${c.title}</div>
+            <div class="muted" style="font-size:11.5px;font-weight:600;margin-top:2px;line-height:1.4;">${c.desc}</div>
+          </div>
+        </button>`).join('')}
+    </div>
+  </div>`;
+}
+function wireStudentDashboard(){
+  document.querySelectorAll('.feature-card').forEach(b=>{
+    b.onclick = ()=>{
+      const v = b.dataset.view;
+      if (v === 'profile'){ S.studentTab='profile'; }
+      else { S.homeView = v; }
+      render();
+    };
+  });
+}
+
+function renderCourses(){
+  const topics = visibleTopics();
+  const topic = getTopic(S.activeTopicId) ? {...getTopic(S.activeTopicId), lessons: getTopic(S.activeTopicId).lessons.filter(l=>l.published!==false)} : topics[0];
+  if (!topic) return `<div class="muted" style="padding:40px;text-align:center;">কোনো টপিক নেই</div>`;
+  return `
+  <div style="padding-top:24px;">
+    <div class="topbar row" style="gap:10px;">
+      <button class="icon-btn" id="back-courses">${icon('chevronleft',18)}</button>
+      <div>
+        <div class="muted" style="font-size:13px;font-weight:600;">নবম-দশম শ্রেণী · গণিত</div>
+        <div style="font-size:20px;font-weight:800;">ত্রিকোণমিতি</div>
+      </div>
+    </div>
+
+    <div class="row" style="gap:8px;padding:4px 20px;overflow-x:auto;">
+      ${topics.map(t=>`
+        <button data-topic="${t.id}" class="topic-chip row" style="gap:6px;flex-shrink:0;padding:7px 12px;border-radius:999px;border:none;background:${t.id===topic.id?t.soft:'var(--soft)'};cursor:pointer;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${t.color};display:inline-block;flex-shrink:0;"></span>
+          <span style="font-size:12px;font-weight:800;color:${t.id===topic.id?t.color:'var(--muted)'};white-space:nowrap;">${t.name}</span>
+        </button>`).join('')}
+    </div>
+
+    <div class="row" style="gap:8px;padding:18px 20px 10px;">
+      <span style="width:10px;height:10px;border-radius:3px;background:${topic.color};display:inline-block;"></span>
+      <span style="font-size:16px;font-weight:800;">${topic.name} — পাঠসমূহ</span>
+    </div>
+
+    <div class="col" style="padding:0 20px 24px;gap:10px;">
+      ${topic.lessons.length===0 ? `<div class="muted" style="padding:24px 2px;">এই টপিকে এখনো কোনো পাঠ প্রকাশিত হয়নি</div>` :
+      topic.lessons.map(l=>{
+        const done = isLessonDone(topic.id, l.id);
+        return `
+        <button class="card lesson-item row" data-lesson="${l.id}" style="gap:14px;text-align:left;padding:12px 14px;cursor:pointer;">
+          <div style="width:44px;height:44px;border-radius:12px;background:${topic.soft};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:${topic.color};">
+            ${done ? icon('checkcircle',20) : icon('play',18)}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.title}</div>
+            <div class="muted row" style="gap:4px;font-size:12px;margin-top:2px;">${icon('clock',12)} ${l.duration}</div>
+          </div>
+        </button>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+function wireCourses(){
+  const back = document.getElementById('back-courses');
+  if (back) back.onclick = ()=>{ S.homeView='dashboard'; render(); };
+  document.querySelectorAll('.topic-chip').forEach(b=>{
+    b.onclick = ()=>{ S.activeTopicId = b.dataset.topic; render(); };
+  });
+  document.querySelectorAll('.lesson-item').forEach(b=>{
+    b.onclick = ()=>{ S.activeLessonId = b.dataset.lesson; S.screen='lesson'; render(); };
+  });
+}
+
+function renderLesson(){
+  const topic = getTopic(S.activeTopicId);
+  const lesson = topic.lessons.find(l=>l.id===S.activeLessonId);
+  const embed = ytEmbed(lesson.videoUrl);
+  const directVideo = !embed && isDirectVideo(lesson.videoUrl);
+  const done = isLessonDone(topic.id, lesson.id);
+  return `
+  <div>
+    <div style="height:220px;background:${(embed||directVideo)?'#000':`linear-gradient(135deg, ${topic.color}, #26241F)`};position:relative;display:flex;align-items:center;justify-content:center;">
+      ${embed ? `<iframe src="${embed}" style="width:100%;height:100%;border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+        : directVideo ? `<video src="${lesson.videoUrl}" controls playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>`
+        : `<div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.95);display:flex;align-items:center;justify-content:center;color:${topic.color};">${icon('play',26)}</div>`}
+      <button class="icon-btn" id="back-lesson" style="position:absolute;top:16px;left:16px;background:rgba(255,255,255,0.25);color:#fff;z-index:5;">${icon('chevronleft',20)}</button>
+    </div>
+    <div style="padding:20px 20px 40px;">
+      <div class="pill" style="background:${topic.soft};color:${topic.color};margin-bottom:10px;">${topic.name}</div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:6px;">${lesson.title}</div>
+      <div class="muted row" style="gap:5px;font-size:13px;margin-bottom:20px;">${icon('clock',13)} ${lesson.duration} ভিডিও পাঠ</div>
+      <div style="font-size:14px;color:#4A473E;line-height:1.8;margin-bottom:24px;">
+        এই পাঠে ধাপে ধাপে সূত্র ব্যাখ্যা করা হয়েছে। ভিডিও দেখা শেষে "সম্পন্ন করুন" বাটনে চাপুন — তাহলে এটি আপনার অগ্রগতিতে যোগ হবে।
+      </div>
+      <button class="btn" id="complete-btn" ${done?'disabled':''} style="width:100%;padding:14px;border-radius:14px;background:${done?'var(--green-soft)':topic.color};color:${done?'#3FA796':'#fff'};font-size:15px;">
+        ${icon('checkcircle',18)} ${done ? 'পাঠ সম্পন্ন হয়েছে' : 'সম্পন্ন করুন'}
+      </button>
+    </div>
+  </div>`;
+}
+function wireLesson(){
+  document.getElementById('back-lesson').onclick = ()=>{ S.screen='app'; render(); };
+  const btn = document.getElementById('complete-btn');
+  if (btn && !btn.disabled){
+    btn.onclick = async ()=>{
+      const key = S.activeTopicId+'::'+S.activeLessonId;
+      S.currentStudent.completed = S.currentStudent.completed || [];
+      if (!S.currentStudent.completed.includes(key)) S.currentStudent.completed.push(key);
+      await saveCurrentStudent();
+      toast('পাঠটি সম্পন্ন হিসেবে চিহ্নিত হয়েছে ✓');
+      render();
+    };
+  }
+}
+
+function renderPdfNotes(){
+  const topics = visibleTopics();
+  const notes = visibleNotes();
+  return `
+  <div style="padding-top:24px;">
+    <div class="topbar row" style="gap:10px;">
+      <button class="icon-btn" id="back-pdf">${icon('chevronleft',18)}</button>
+      <div>
+        <div class="muted" style="font-size:13px;font-weight:600;">টপিকভিত্তিক লিখিত নোট</div>
+        <div style="font-size:20px;font-weight:800;">পিডিএফ নোট</div>
+      </div>
+    </div>
+    <div class="col" style="padding:10px 20px 24px;gap:20px;">
+      ${topics.map(t=>{
+        const tn = notes.filter(n=>n.topicId===t.id);
+        return `<div>
+          <div class="row" style="gap:8px;margin-bottom:10px;">
+            <span style="width:9px;height:9px;border-radius:3px;background:${t.color};display:inline-block;"></span>
+            <span style="font-size:13.5px;font-weight:800;">${t.name}</span>
+          </div>
+          <div class="col" style="gap:10px;">
+            ${tn.length===0 ? `<div class="muted" style="font-size:12.5px;padding:6px 2px;">এই টপিকে এখনো কোনো নোট যোগ করা হয়নি</div>` :
+            tn.map(n=>`
+              <div class="card row" style="gap:12px;padding:12px 14px;">
+                <div style="width:42px;height:42px;border-radius:12px;background:${t.soft};display:flex;align-items:center;justify-content:center;color:${t.color};flex-shrink:0;">${icon('file',19)}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:700;">${n.title}</div>
+                  <div class="muted" style="font-size:11.5px;font-weight:600;margin-top:2px;">${n.pages} পৃষ্ঠা · ${n.size}</div>
+                </div>
+                <a href="${n.url}" target="_blank" rel="noopener noreferrer" class="icon-btn" style="background:${t.soft};color:${t.color};text-decoration:none;">${icon('download',16)}</a>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+const BOARD_ICON_STYLES = [
+  { bg:'var(--blue-soft)',   fg:'var(--blue)' },
+  { bg:'var(--green-soft)',  fg:'var(--green)' },
+  { bg:'var(--orange-soft)', fg:'var(--orange)' },
+  { bg:'#EFE6FD',            fg:'#8B5CF6' },
+  { bg:'#DDF3F6',            fg:'#22A6B3' },
+  { bg:'var(--yellow-soft)', fg:'#B8860B' },
+  { bg:'var(--red-soft)',    fg:'var(--red)' },
+  { bg:'#FCE4EF',            fg:'#EB6FA0' },
+  { bg:'#E7F0DE',            fg:'#5C8A4A' },
+];
+function boardStyleFor(boardName, allBoards){
+  const idx = allBoards.indexOf(boardName);
+  return BOARD_ICON_STYLES[idx % BOARD_ICON_STYLES.length];
+}
+
+function renderBoardQuestions(){
+  const qs = visibleBoardQuestions();
+  const boards = [...new Set(qs.map(q=>q.board))];
+  if (S.activeBoardName && !boards.includes(S.activeBoardName)) S.activeBoardName = null;
+
+  if (S.activeBoardName){
+    const boardName = S.activeBoardName;
+    const items = qs.filter(q=>q.board===boardName).sort((a,b)=>b.year.localeCompare(a.year));
+    const st = boardStyleFor(boardName, boards);
+    return `
+    <div style="padding-top:24px;">
+      <div class="topbar row" style="gap:10px;">
+        <button class="icon-btn" id="back-board-detail">${icon('chevronleft',18)}</button>
+        <div>
+          <div class="muted" style="font-size:13px;font-weight:600;">বিগত বছরের প্রশ্নপত্র</div>
+          <div style="font-size:20px;font-weight:800;">${boardName}</div>
+        </div>
+      </div>
+      <div class="col" style="padding:14px 20px 24px;gap:12px;">
+        ${items.length===0 ? `<div class="muted" style="padding:12px 2px;">এখনো কোনো প্রশ্নপত্র প্রকাশিত হয়নি</div>` :
+        items.map((q,i)=>{
+          const label = `${boardName} - ${q.year}`;
+          const sizeLabel = q.size || `${(320 + (i*37)%520)} কেবি`;
+          return `
+          <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="card row" style="padding:14px 16px;gap:14px;text-decoration:none;color:inherit;">
+            <div style="width:46px;height:46px;border-radius:14px;background:${st.bg};display:flex;align-items:center;justify-content:center;color:${st.fg};flex-shrink:0;">${icon('file',21)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:16px;font-weight:800;">${label}</div>
+              <div class="muted" style="font-size:13px;font-weight:600;margin-top:2px;">${sizeLabel}</div>
+            </div>
+            <span class="icon-btn" style="width:40px;height:40px;border-radius:50%;background:${st.bg};color:${st.fg};">${icon('download',18)}</span>
+          </a>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  return `
+  <div style="padding-top:24px;">
+    <div class="topbar row" style="gap:10px;">
+      <button class="icon-btn" id="back-board">${icon('chevronleft',18)}</button>
+      <div>
+        <div class="muted" style="font-size:13px;font-weight:600;">বিগত বছরের প্রশ্নপত্র</div>
+        <div style="font-size:20px;font-weight:800;">এসএসসি বোর্ড প্রশ্ন</div>
+      </div>
+    </div>
+    <div class="col" style="padding:14px 20px 24px;gap:12px;">
+      ${boards.length===0 ? `<div class="muted" style="padding:12px 2px;">এখনো কোনো প্রশ্নপত্র প্রকাশিত হয়নি</div>` :
+      boards.map(b=>{
+        const count = qs.filter(q=>q.board===b).length;
+        const st = boardStyleFor(b, boards);
+        return `
+        <button data-board="${b}" class="card row board-row" style="padding:14px 16px;gap:14px;cursor:pointer;text-align:left;">
+          <div style="width:46px;height:46px;border-radius:14px;background:${st.bg};display:flex;align-items:center;justify-content:center;color:${st.fg};flex-shrink:0;">${icon('file',21)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:800;">${b}</div>
+            <div class="muted" style="font-size:13px;font-weight:600;margin-top:2px;">${count}টি সাল উপলব্ধ</div>
+          </div>
+          <span class="muted">${icon('chevronright',20)}</span>
+        </button>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+function wireBoardQuestions(){
+  wireBack('back-board', ()=>{ S.homeView='dashboard'; S.activeBoardName=null; render(); });
+  wireBack('back-board-detail', ()=>{ S.activeBoardName=null; render(); });
+  document.querySelectorAll('.board-row').forEach(b=>{
+    b.onclick = ()=>{ S.activeBoardName = b.dataset.board; render(); };
+  });
+}
+
+function renderProgress(){
+  const topics = visibleTopics();
+  const totalDone = totalDoneCount(), totalLessons = totalPublishedLessons();
+  const overallPct = totalLessons ? Math.round((totalDone/totalLessons)*100) : 0;
+  return `
+  <div style="padding-top:24px;">
+    <div class="topbar">
+      <div class="muted" style="font-size:13px;font-weight:600;">আপনার অগ্রগতি</div>
+      <div style="font-size:22px;font-weight:800;">প্রগ্রেস</div>
+    </div>
+    <div style="padding:16px 20px 6px;">
+      <div style="background:var(--ink);border-radius:20px;padding:20px;color:#fff;">
+        <div class="row between">
+          <div>
+            <div style="font-size:12px;color:#C9C4B4;font-weight:600;margin-bottom:4px;">মোট সম্পন্ন পাঠ</div>
+            <div style="font-size:30px;font-weight:800;">${totalDone}<span style="font-size:16px;color:#C9C4B4;font-weight:700;">/${totalLessons}</span></div>
+          </div>
+          <span style="color:#F2B441;">${icon('flame',26)}</span>
+        </div>
+        <div style="margin-top:16px;height:8px;border-radius:8px;background:rgba(255,255,255,0.15);overflow:hidden;">
+          <div style="width:${overallPct}%;height:100%;background:linear-gradient(90deg,#F2B441,#FF7A59);border-radius:8px;"></div>
+        </div>
+        <div style="font-size:12px;color:#C9C4B4;margin-top:8px;font-weight:600;">সামগ্রিক অগ্রগতি ${overallPct}%</div>
+      </div>
+    </div>
+    <div style="padding:14px 20px 6px;font-size:14px;font-weight:800;">টপিক অনুযায়ী অগ্রগতি</div>
+    <div class="col" style="padding:0 20px 24px;gap:12px;">
+      ${topics.map(t=>{
+        const doneCount = t.lessons.filter(l=>isLessonDone(t.id,l.id)).length;
+        const pct = t.lessons.length ? Math.round((doneCount/t.lessons.length)*100) : 0;
+        return `<div class="card" style="padding:14px 16px;">
+          <div class="row between" style="margin-bottom:8px;">
+            <div class="row" style="gap:8px;">
+              <span style="width:9px;height:9px;border-radius:3px;background:${t.color};display:inline-block;"></span>
+              <span style="font-size:13.5px;font-weight:700;">${t.name}</span>
+            </div>
+            <span style="font-size:12.5px;font-weight:800;color:${t.color};">${doneCount}/${t.lessons.length}</span>
+          </div>
+          <div style="height:7px;border-radius:7px;background:${t.soft};overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:${t.color};border-radius:7px;"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function renderProfile(){
+  const st = S.currentStudent;
+  const initial = (st.name||'শি').slice(0,1);
+  const totalDone = totalDoneCount(), totalLessons = totalPublishedLessons();
+  return `
+  <div style="padding-top:24px;">
+    <div class="topbar">
+      <div class="muted" style="font-size:13px;font-weight:600;">আমার একাউন্ট</div>
+      <div style="font-size:22px;font-weight:800;">প্রোফাইল</div>
+    </div>
+
+    <div style="padding:16px 20px 6px;">
+      <div class="card row" style="gap:14px;padding:16px;">
+        <div style="width:60px;height:60px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;flex-shrink:0;">${initial}</div>
+        <div style="min-width:0;flex:1;">
+          <div style="font-size:16.5px;font-weight:800;">${st.name || 'নাম যোগ করুন'}</div>
+          <div class="muted" style="font-size:12.5px;font-weight:600;margin-top:2px;">${st.cls || 'নবম-দশম'} শ্রেণী · ${st.phone}</div>
+        </div>
+        <button class="icon-btn" id="edit-profile">${icon('pencil',15)}</button>
+      </div>
+    </div>
+
+    <div style="padding:14px 20px 6px;" class="row" style="gap:10px;">
+      <div class="card" style="flex:1;padding:14px;text-align:center;">
+        <div style="color:var(--orange);">${icon('award',20)}</div>
+        <div style="font-size:18px;font-weight:800;margin-top:4px;">${totalDone}</div>
+        <div class="muted" style="font-size:11.5px;font-weight:600;">পাঠ সম্পন্ন</div>
+      </div>
+      <div class="card" style="flex:1;padding:14px;text-align:center;">
+        <div style="color:var(--blue);">${icon('book',20)}</div>
+        <div style="font-size:18px;font-weight:800;margin-top:4px;">${totalLessons}</div>
+        <div class="muted" style="font-size:11.5px;font-weight:600;">মোট পাঠ</div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px 4px;">
+      <div class="card row between" id="pay-card" style="padding:16px;background:${st.paid?'var(--green-soft)':'var(--red-soft)'};border:1px solid ${st.paid?'#BEE6CE':'#F5C6C6'};cursor:${st.paid?'default':'pointer'};">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:${st.paid?'var(--green)':'var(--red)'};">${st.paid ? 'কোর্স ফি পরিশোধিত' : 'কোর্স ফি বাকি (৳৭৫০)'}</div>
+          <div class="muted" style="font-size:12px;margin-top:2px;">${st.paid ? 'সব কনটেন্টে প্রবেশাধিকার আছে' : 'ট্যাপ করে ডেমো পেমেন্ট সম্পন্ন করুন'}</div>
+        </div>
+        <span style="color:${st.paid?'var(--green)':'var(--red)'};">${icon(st.paid?'checkcircle':'xcircle',22)}</span>
+      </div>
+    </div>
+
+    <div class="col" style="padding:16px 20px 24px;gap:8px;">
+      <button class="card row" style="gap:12px;padding:12px 14px;cursor:pointer;text-align:left;">
+        ${icon('bell',18)} <span style="flex:1;font-size:13.5px;font-weight:700;">নোটিফিকেশন</span> ${icon('chevronright',16)}
+      </button>
+      <button class="card row" style="gap:12px;padding:12px 14px;cursor:pointer;text-align:left;">
+        ${icon('settings',18)} <span style="flex:1;font-size:13.5px;font-weight:700;">সেটিংস</span> ${icon('chevronright',16)}
+      </button>
+      <button class="card row" id="logout-btn" style="gap:12px;padding:12px 14px;cursor:pointer;text-align:left;">
+        <span style="color:var(--red);">${icon('logout',18)}</span> <span style="flex:1;font-size:13.5px;font-weight:700;color:var(--red);">লগ আউট</span>
+      </button>
+    </div>
+  </div>`;
+}
+function wireProfile(){
+  document.getElementById('logout-btn').onclick = async ()=>{
+    S.role = null; S.currentStudent = null; S.currentPhone = null; S.screen='landing'; S.studentTab='home'; S.homeView='dashboard';
+    await saveLocal('lms:session:phone', null);
+    render();
+  };
+  const payCard = document.getElementById('pay-card');
+  if (payCard && !S.currentStudent.paid){
+    payCard.onclick = async ()=>{
+      openPaymentSheet(async ()=>{
+        S.currentStudent.paid = true;
+        await saveCurrentStudent();
+        toast('পেমেন্ট সম্পন্ন হয়েছে ✓ (ডেমো)');
+        render();
+      });
+    };
+  }
+  const editBtn = document.getElementById('edit-profile');
+  if (editBtn) editBtn.onclick = ()=> openEditProfileSheet();
+}
+
+/* ---------- payment sheet (demo) ---------- */
+function openPaymentSheet(onSuccess){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(38,36,31,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:480px;background:var(--bg);border-radius:22px 22px 0 0;padding:22px 22px calc(24px + env(safe-area-inset-bottom));">
+      <div class="row between" style="margin-bottom:16px;">
+        <div style="font-size:17px;font-weight:800;">ডেমো পেমেন্ট</div>
+        <button class="icon-btn" id="close-pay">${icon('x',16)}</button>
+      </div>
+      <div class="row between" style="background:var(--ink);border-radius:16px;padding:16px 18px;color:#fff;margin-bottom:16px;">
+        <div>
+          <div style="font-size:11.5px;color:#C9C4B4;font-weight:600;">ভর্তি ফি</div>
+          <div style="font-size:22px;font-weight:800;">৳৫০০</div>
+        </div>
+        <span style="color:#3FA796;">${icon('shield',20)}</span>
+      </div>
+      <div class="muted" style="font-size:12px;margin-bottom:16px;line-height:1.6;">
+        এটি একটি ডেমো ফ্লো — bKash/Nagad-এর সত্যিকার লেনদেন হয় না। "পরিশোধ করুন" চাপলেই স্ট্যাটাস আপডেট হবে।
+      </div>
+      <button class="btn btn-primary" id="confirm-pay">৳৫০০ পরিশোধ করুন (ডেমো)</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#close-pay').onclick = ()=>overlay.remove();
+  overlay.onclick = (e)=>{ if (e.target===overlay) overlay.remove(); };
+  overlay.querySelector('#confirm-pay').onclick = async ()=>{
+    overlay.querySelector('#confirm-pay').textContent = 'প্রসেস হচ্ছে…';
+    await new Promise(r=>setTimeout(r,500));
+    overlay.remove();
+    onSuccess();
+  };
+}
+
+function openEditProfileSheet(){
+  const st = S.currentStudent;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(38,36,31,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:480px;background:var(--bg);border-radius:22px 22px 0 0;padding:22px 22px calc(24px + env(safe-area-inset-bottom));">
+      <div class="row between" style="margin-bottom:16px;">
+        <div style="font-size:17px;font-weight:800;">প্রোফাইল সম্পাদনা</div>
+        <button class="icon-btn" id="close-edit">${icon('x',16)}</button>
+      </div>
+      <div class="field-label">নাম</div>
+      <input id="edit-name" class="field-input" value="${st.name||''}" style="margin-bottom:12px;" />
+      <div class="field-label">স্কুল</div>
+      <input id="edit-school" class="field-input" value="${st.school||''}" style="margin-bottom:16px;" />
+      <button class="btn btn-dark" id="save-edit">সংরক্ষণ করুন</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#close-edit').onclick = ()=>overlay.remove();
+  overlay.onclick = (e)=>{ if (e.target===overlay) overlay.remove(); };
+  overlay.querySelector('#save-edit').onclick = async ()=>{
+    st.name = document.getElementById('edit-name').value.trim();
+    st.school = document.getElementById('edit-school').value.trim();
+    await saveCurrentStudent();
+    overlay.remove();
+    render();
+  };
+}
+
+/* =========================================================
+   ADMIN
+   ========================================================= */
+function renderAdminLogin(){
+  return `
+  <div class="col" style="min-height:100vh;padding:56px 26px 36px;background:linear-gradient(180deg,#FFF9EF 0%,#FFF3E4 100%);">
+    <div style="width:56px;height:56px;border-radius:18px;background:var(--blue);display:flex;align-items:center;justify-content:center;margin-bottom:22px;color:#fff;">${icon('layout',24)}</div>
+    <div style="font-size:24px;font-weight:800;">অ্যাডমিন প্যানেল</div>
+    <div class="muted" style="font-size:13.5px;margin-top:4px;margin-bottom:26px;">পাসকোড দিয়ে প্রবেশ করুন</div>
+    <div class="field-label">পাসকোড</div>
+    <input id="admin-pass" type="password" class="field-input" placeholder="পাসকোড লিখুন" style="margin-bottom:16px;padding:13px 15px;" />
+    <button class="btn btn-primary" id="admin-login-btn">প্রবেশ করুন ${icon('arrowright',18)}</button>
+    <div class="muted" style="font-size:11px;text-align:center;margin-top:16px;">ডেমো পাসকোড: <b>admin123</b></div>
+  </div>`;
+}
+function wireAdminLogin(){
+  const btn = document.getElementById('admin-login-btn');
+  const inp = document.getElementById('admin-pass');
+  btn.onclick = ()=>{
+    if (inp.value === ADMIN_PASSCODE){ S.adminAuthed = true; render(); }
+    else { toast('পাসকোড সঠিক নয়'); inp.value=''; inp.focus(); }
+  };
+  inp.addEventListener('keydown', e=>{ if (e.key==='Enter') btn.click(); });
+}
+
+function renderAdminNav(){
+  const items = [
+    {id:'dashboard', label:'ড্যাশবোর্ড', icon:'layout'},
+    {id:'students', label:'শিক্ষার্থী', icon:'users'},
+    {id:'content', label:'কনটেন্ট', icon:'book'},
+  ];
+  return items.map(it=>`
+    <button data-tab="${it.id}" class="${S.adminScreen===it.id || (S.adminScreen==='studentDetail' && it.id==='students')?'active':''}">
+      ${icon(it.icon,20)}
+      <span class="navlabel">${it.label}</span>
+    </button>`).join('');
+}
+function wireAdminNav(){
+  document.querySelectorAll('#bottomnav button').forEach(b=>{
+    b.onclick = ()=>{ S.adminScreen = b.dataset.tab; S.selectedStudentPhone=null; render(); };
+  });
+}
+
+function renderAdminScreen(){
+  if (S.adminScreen === 'studentDetail') return renderAdminStudentDetail();
+  if (S.adminScreen === 'studentAdd') return renderAdminStudentAdd();
+  if (S.adminScreen === 'students') return renderAdminStudents();
+  if (S.adminScreen === 'content') return renderAdminContent();
+  return renderAdminDashboard();
+}
+function wireAdminScreen(){
+  if (S.adminScreen === 'studentDetail') return wireAdminStudentDetail();
+  if (S.adminScreen === 'studentAdd') return wireAdminStudentAdd();
+  if (S.adminScreen === 'students') return wireAdminStudents();
+  if (S.adminScreen === 'content') return wireAdminContent();
+  return wireAdminDashboard();
+}
+
+async function fetchAllStudents(){
+  const recs = await Promise.all(S.studentsIndex.map(p=>loadShared('lms:student:'+p, null)));
+  return recs.filter(Boolean);
+}
+
+function renderAdminDashboard(){
+  return `<div style="padding:20px 18px 24px;" id="admin-dash-root">
+    <div style="margin-bottom:20px;">
+      <div class="muted" style="font-size:13px;font-weight:600;">স্বাগতম,</div>
+      <div style="font-size:22px;font-weight:800;">অ্যাডমিন প্যানেল</div>
+    </div>
+    <div id="admin-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+      <div class="muted" style="grid-column:1/3;text-align:center;padding:20px;">লোড হচ্ছে…</div>
+    </div>
+    <button class="icon-btn" id="admin-exit" style="position:fixed;top:46px;right:${Math.max(16,(window.innerWidth-480)/2+16)}px;background:rgba(38,36,31,0.06);width:auto;padding:6px 10px;font-size:11px;font-weight:700;">লগ আউট</button>
+  </div>`;
+}
+function wireAdminDashboard(){
+  const exitBtn = document.getElementById('admin-exit');
+  if (exitBtn) exitBtn.onclick = ()=>{ S.adminAuthed=false; render(); };
+  (async ()=>{
+    const students = await fetchAllStudents();
+    const paidCount = students.filter(s=>s.paid).length;
+    const totalLessons = S.topics.reduce((a,t)=>a+t.lessons.length,0);
+    const totalPublished = visibleTopics().reduce((a,t)=>a+t.lessons.length,0);
+    const el = document.getElementById('admin-stats');
+    if (!el) return;
+    const stats = [
+      {label:'মোট শিক্ষার্থী', value:students.length, icn:'users', color:'var(--orange)'},
+      {label:'পরিশোধিত', value:paidCount, icn:'graduationcap', color:'var(--blue)'},
+      {label:'মোট পাঠ', value:totalLessons, icn:'book', color:'var(--green)'},
+      {label:'প্রকাশিত পাঠ', value:totalPublished, icn:'eye', color:'var(--yellow)'},
+    ];
+    el.innerHTML = stats.map(s=>`
+      <div class="card" style="padding:16px;">
+        <div style="width:34px;height:34px;border-radius:10px;background:var(--soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px;color:${s.color};">${icon(s.icn,17)}</div>
+        <div style="font-size:20px;font-weight:800;">${s.value}</div>
+        <div class="muted" style="font-size:12px;font-weight:600;margin-top:2px;">${s.label}</div>
+      </div>`).join('') + `
+      <div style="grid-column:1/3;">
+        <div style="font-size:15px;font-weight:800;margin:12px 0 10px;">সাম্প্রতিক শিক্ষার্থী</div>
+        <div class="col" style="gap:10px;">
+        ${students.slice(-3).reverse().map(s=>`
+          <div class="card row" style="gap:12px;padding:12px;">
+            <div style="width:38px;height:38px;border-radius:19px;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">${(s.name||'?').slice(0,1)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:700;">${s.name||'(নাম নেই)'}</div>
+              <div class="muted" style="font-size:12px;">${s.cls||''} শ্রেণী · ${s.joined||''}</div>
+            </div>
+            <div class="pill" style="background:${s.paid?'var(--green-soft)':'var(--yellow-soft)'};color:${s.paid?'var(--green)':'#9A6A0E'};">${s.paid?'পরিশোধিত':'বকেয়া'}</div>
+          </div>`).join('') || `<div class="muted" style="padding:16px;text-align:center;">এখনো কোনো শিক্ষার্থী নেই</div>`}
+        </div>
+      </div>`;
+  })();
+}
+
+function renderAdminStudents(){
+  return `<div style="padding:20px 18px 24px;">
+    <div class="row between" style="margin-bottom:16px;">
+      <div style="font-size:22px;font-weight:800;">শিক্ষার্থী</div>
+      <button id="add-student-btn" class="btn btn-dark" style="width:auto;padding:9px 16px;font-size:13px;">${icon('plus',15)} নতুন যোগ করুন</button>
+    </div>
+    <div class="row" style="gap:8px;background:var(--soft);border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+      ${icon('search',17)}
+      <input id="student-search" placeholder="নাম দিয়ে খুঁজুন" style="border:none;outline:none;background:transparent;flex:1;font-size:14px;color:var(--ink);" />
+    </div>
+    <div id="students-list" class="col" style="gap:10px;margin-bottom:14px;">
+      <div class="muted" style="text-align:center;padding:20px;">লোড হচ্ছে…</div>
+    </div>
+    <div id="delete-all-wrap"></div>
+  </div>`;
+}
+function wireAdminStudents(){
+  let allStudents = [];
+  (async ()=>{
+    allStudents = await fetchAllStudents();
+    paint('');
+    paintDeleteAll();
+  })();
+  function paintDeleteAll(){
+    const wrap = document.getElementById('delete-all-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = allStudents.length ? `
+      <button id="delete-all-students" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--red);background:transparent;color:var(--red);font-weight:700;font-size:12.5px;cursor:pointer;">${icon('trash',14)} সব শিক্ষার্থীর একাউন্ট মুছে ফেলুন</button>` : '';
+    const btn = document.getElementById('delete-all-students');
+    if (btn) btn.onclick = async ()=>{
+      if (!confirm(`আপনি কি নিশ্চিত? এতে ${allStudents.length} জন শিক্ষার্থীর সব তথ্য (অগ্রগতি, ভর্তি ফি অবস্থা সহ) স্থায়ীভাবে মুছে যাবে — এটা ফিরিয়ে আনা যাবে না।`)) return;
+      btn.disabled = true; btn.textContent = 'মুছে ফেলা হচ্ছে…';
+      const results = await Promise.all(S.studentsIndex.map(async p=>({ p, ok: await deleteShared('lms:student:'+p) })));
+      const failed = results.filter(r=>!r.ok).map(r=>r.p);
+      const succeeded = results.filter(r=>r.ok).map(r=>r.p);
+      S.studentsIndex = S.studentsIndex.filter(p=>!succeeded.includes(p));
+      await saveShared('lms:students:index', S.studentsIndex);
+      allStudents = allStudents.filter(s=>!succeeded.includes(s.phone));
+      if (failed.length){
+        toast(`${succeeded.length} জন মুছে ফেলা হয়েছে, কিন্তু ${failed.length} জন ব্যর্থ হয়েছে — Supabase-এ DELETE অনুমতি (policy) আছে কিনা দেখুন`);
+      } else {
+        toast('সব শিক্ষার্থীর একাউন্ট মুছে ফেলা হয়েছে');
+      }
+      paint(''); paintDeleteAll();
+    };
+  }
+  document.getElementById('add-student-btn').onclick = ()=>{ S.adminScreen='studentAdd'; render(); };
+  function paint(q){
+    const el = document.getElementById('students-list');
+    if (!el) return;
+    const filtered = q ? allStudents.filter(s=>(s.name||'').includes(q) || (s.phone||'').includes(q)) : allStudents;
+    el.innerHTML = filtered.length===0 ? `<div class="muted" style="text-align:center;padding:24px;">কোনো শিক্ষার্থী পাওয়া যায়নি</div>` :
+      filtered.map(s=>`
+        <div class="card row student-row" data-phone="${s.phone}" style="gap:12px;padding:14px;cursor:pointer;">
+          <div style="width:42px;height:42px;border-radius:21px;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">${(s.name||'?').slice(0,1)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:700;">${s.name||'(নাম নেই)'}</div>
+            <div class="muted" style="font-size:12px;">${s.cls||''} শ্রেণী · ${s.phone}</div>
+          </div>
+          <span style="color:var(--muted);">${icon('chevronright',18)}</span>
+        </div>`).join('');
+    el.querySelectorAll('.student-row').forEach(r=>{
+      r.onclick = ()=>{ S.selectedStudentPhone = r.dataset.phone; S.adminScreen='studentDetail'; render(); };
+    });
+  }
+  const search = document.getElementById('student-search');
+  if (search) search.addEventListener('input', ()=>paint(search.value.trim()));
+}
+
+function renderAdminStudentAdd(){
+  return `<div style="padding:20px 18px 24px;">
+    <div class="row" id="back-add" style="gap:6px;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:18px;cursor:pointer;">${icon('chevronleft',16)} শিক্ষার্থী তালিকা</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:4px;">নতুন শিক্ষার্থী যোগ করুন</div>
+    <div class="muted" style="font-size:13px;margin-bottom:20px;">এই মোবাইল ও পাসওয়ার্ড দিয়েই শিক্ষার্থী অ্যাপে লগইন করা যাবে</div>
+
+    <div class="field-label">শিক্ষার্থীর নাম <span style="color:var(--red);">*</span></div>
+    <input id="asf-name" class="field-input" placeholder="নাম লিখুন" style="margin-bottom:14px;" />
+
+    <div class="field-label">শ্রেণি</div>
+    <div class="row" style="gap:8px;margin-bottom:14px;">
+      <button data-cls="নবম" class="asf-cls-btn card" style="flex:1;padding:10px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;">নবম</button>
+      <button data-cls="দশম" class="asf-cls-btn card" style="flex:1;padding:10px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;">দশম</button>
+    </div>
+
+    <div class="field-label">মোবাইল নম্বর <span style="color:var(--red);">*</span></div>
+    <input id="asf-phone" class="field-input" type="tel" placeholder="০১৭ XX XXX XXX" style="margin-bottom:14px;" />
+
+    <div class="field-label">ঠিকানা</div>
+    <input id="asf-address" class="field-input" placeholder="যেমন: ধানমন্ডি, ঢাকা" style="margin-bottom:14px;" />
+
+    <div class="field-label">পাসওয়ার্ড <span style="color:var(--red);">*</span></div>
+    <input id="asf-pass" class="field-input" placeholder="কমপক্ষে ৪ সংখ্যা/অক্ষর" style="margin-bottom:14px;" />
+
+    <div class="row" style="gap:10px;margin-bottom:14px;">
+      <input id="asf-paid" type="checkbox" style="width:18px;height:18px;" />
+      <label for="asf-paid" style="font-size:13.5px;font-weight:600;">ভর্তি ফি পরিশোধিত হিসেবে চিহ্নিত করুন</label>
+    </div>
+
+    <div id="asf-error" class="muted" style="font-size:12px;color:var(--red);font-weight:700;min-height:16px;margin-bottom:6px;"></div>
+    <button class="btn btn-primary" id="asf-save">${icon('check',16)} শিক্ষার্থী যোগ করুন</button>
+  </div>`;
+}
+function wireAdminStudentAdd(){
+  document.getElementById('back-add').onclick = ()=>{ S.adminScreen='students'; render(); };
+  let chosenCls = 'নবম';
+  document.querySelectorAll('.asf-cls-btn').forEach(b=>{
+    b.onclick = ()=>{
+      chosenCls = b.dataset.cls;
+      document.querySelectorAll('.asf-cls-btn').forEach(x=>{ x.style.background='var(--card)'; x.style.color='var(--ink)'; x.style.border='1px solid var(--line)'; });
+      b.style.background = 'var(--orange)'; b.style.color = '#fff'; b.style.border='1px solid var(--orange)';
+    };
+  });
+  document.querySelector('.asf-cls-btn[data-cls="নবম"]').click();
+
+  const errorEl = document.getElementById('asf-error');
+  const saveBtn = document.getElementById('asf-save');
+  saveBtn.onclick = async ()=>{
+    errorEl.textContent = '';
+    const name = document.getElementById('asf-name').value.trim();
+    const p = normPhone(document.getElementById('asf-phone').value);
+    const address = document.getElementById('asf-address').value.trim();
+    const pass = document.getElementById('asf-pass').value;
+    const paid = document.getElementById('asf-paid').checked;
+    if (!name){ errorEl.textContent = 'নাম লিখুন'; return; }
+    if (p.length < 11){ errorEl.textContent = 'সঠিক মোবাইল নম্বর দিন'; return; }
+    if (!pass || pass.length < 4){ errorEl.textContent = 'কমপক্ষে ৪ সংখ্যা/অক্ষরের পাসওয়ার্ড দিন'; return; }
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `${icon('flame',16)} সংরক্ষণ হচ্ছে…`;
+    const existing = await loadShared('lms:student:'+p, null);
+    if (existing){
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = `${icon('check',16)} শিক্ষার্থী যোগ করুন`;
+      errorEl.textContent = 'এই মোবাইল নম্বরে আগে থেকেই একাউন্ট আছে';
+      return;
+    }
+    const rec = { phone:p, name, cls:chosenCls, school:'', guardianPhone:'', address, password:pass, joined: todayLabel(), paid, paymentMethod: paid ? 'manual' : null, completed:[] };
+    await saveShared('lms:student:'+p, rec);
+    if (!S.studentsIndex.includes(p)){
+      S.studentsIndex.push(p);
+      await saveShared('lms:students:index', S.studentsIndex);
+    }
+    toast('শিক্ষার্থী সফলভাবে যোগ হয়েছে ✓');
+    S.adminScreen = 'students';
+    render();
+  };
+}
+
+function renderAdminStudentDetail(){
+  return `<div style="padding:20px 18px 24px;" id="student-detail-root">
+    <div class="muted" style="padding:20px;text-align:center;">লোড হচ্ছে…</div>
+  </div>`;
+}
+function wireAdminStudentDetail(){
+  (async ()=>{
+    const st = await loadShared('lms:student:'+S.selectedStudentPhone, null);
+    const root = document.getElementById('student-detail-root');
+    if (!root) return;
+    if (!st){ root.innerHTML = `<div class="muted">শিক্ষার্থী পাওয়া যায়নি</div>`; return; }
+    const totalLessons = visibleTopics().reduce((a,t)=>a+t.lessons.length,0);
+    const validIds = new Set(visibleTopics().flatMap(t=>t.lessons.map(l=>t.id+'::'+l.id)));
+    const doneCount = (st.completed||[]).filter(k=>validIds.has(k)).length;
+    const pct = totalLessons? Math.round((doneCount/totalLessons)*100):0;
+    root.innerHTML = `
+      <div class="row" id="back-detail" style="gap:6px;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:18px;cursor:pointer;">${icon('chevronleft',16)} শিক্ষার্থী তালিকা</div>
+      <div class="row" style="gap:14px;margin-bottom:20px;">
+        <div style="width:58px;height:58px;border-radius:29px;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px;flex-shrink:0;">${(st.name||'?').slice(0,1)}</div>
+        <div>
+          <div style="font-size:18px;font-weight:800;">${st.name||'(নাম নেই)'}</div>
+          <div class="muted row" style="gap:5px;font-size:13px;margin-top:2px;">${icon('phone',12)} ${st.phone}</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        ${[
+          ['শ্রেণী', (st.cls||'—')+' শ্রেণী'],
+          ['স্কুল', st.school||'—'],
+          ['অভিভাবকের নম্বর', st.guardianPhone||'—'],
+          ['ঠিকানা', st.address||'—'],
+          ['ভর্তির তারিখ', st.joined||'—'],
+        ].map(([l,v],i,arr)=>`
+          <div class="row between" style="padding:13px 16px;${i<arr.length-1?'border-bottom:1px solid var(--line);':''}">
+            <span class="muted" style="font-size:13px;">${l}</span>
+            <span style="font-size:13px;font-weight:700;text-align:right;max-width:60%;">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:14px;font-weight:800;margin-bottom:10px;">শেখার অগ্রগতি</div>
+      <div class="card" style="padding:16px;margin-bottom:16px;">
+        <div class="row between" style="margin-bottom:8px;">
+          <span class="muted" style="font-size:13px;">সম্পন্ন হয়েছে</span>
+          <span style="font-size:13px;font-weight:800;">${doneCount}/${totalLessons} (${pct}%)</span>
+        </div>
+        <div style="height:8px;border-radius:4px;background:var(--line);overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:var(--orange);"></div>
+        </div>
+      </div>
+      <div class="card row between" id="toggle-paid" style="padding:16px;background:${st.paid?'var(--green-soft)':'var(--red-soft)'};cursor:pointer;">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:${st.paid?'var(--green)':'var(--red)'};">${st.paid?'ভর্তি ফি পরিশোধিত':'ভর্তি ফি বাকি'}</div>
+          <div class="muted" style="font-size:12px;margin-top:2px;">${st.paid ? (PAYMENT_METHOD_LABELS[st.paymentMethod] ? `${PAYMENT_METHOD_LABELS[st.paymentMethod]}-এর মাধ্যমে পরিশোধিত${st.transactionId ? ` · TxnID: ${st.transactionId}` : ''} — ট্যাপ করে পরিবর্তন করুন` : 'ট্যাপ করে অবস্থা পরিবর্তন করুন') : 'ট্যাপ করে অবস্থা পরিবর্তন করুন'}</div>
+        </div>
+        <span style="color:${st.paid?'var(--green)':'var(--red)'};">${icon(st.paid?'checkcircle':'xcircle',22)}</span>
+      </div>
+      <button id="delete-student-btn" style="width:100%;margin-top:16px;padding:12px;border-radius:12px;border:1.5px solid var(--red);background:transparent;color:var(--red);font-weight:700;font-size:12.5px;cursor:pointer;">${icon('trash',14)} এই শিক্ষার্থীর একাউন্ট মুছে ফেলুন</button>`;
+
+    document.getElementById('back-detail').onclick = ()=>{ S.adminScreen='students'; render(); };
+    document.getElementById('toggle-paid').onclick = async ()=>{
+      st.paid = !st.paid;
+      await saveShared('lms:student:'+st.phone, st);
+      toast(st.paid?'পরিশোধিত হিসেবে চিহ্নিত হয়েছে':'বকেয়া হিসেবে চিহ্নিত হয়েছে');
+      render();
+    };
+    document.getElementById('delete-student-btn').onclick = async ()=>{
+      if (!confirm(`${st.name||'এই শিক্ষার্থী'}-র একাউন্ট মুছে ফেলতে চান? এটা ফিরিয়ে আনা যাবে না।`)) return;
+      const ok = await deleteShared('lms:student:'+st.phone);
+      if (!ok){
+        toast('ডিলিট ব্যর্থ হয়েছে — Supabase-এ DELETE অনুমতি (policy) নেই মনে হচ্ছে');
+        return;
+      }
+      S.studentsIndex = S.studentsIndex.filter(p=>p!==st.phone);
+      await saveShared('lms:students:index', S.studentsIndex);
+      toast('একাউন্ট মুছে ফেলা হয়েছে');
+      S.adminScreen = 'students';
+      render();
+    };
+  })();
+}
+
+function renderAdminContent(){
+  const tabs = [
+    {id:'video', label:'ভিডিও ক্লাস', color:'var(--orange)'},
+    {id:'notes', label:'পিডিএফ নোট', color:'var(--blue)'},
+    {id:'board', label:'বোর্ড প্রশ্ন', color:'var(--green)'},
+  ];
+  return `<div style="padding:20px 18px 24px;">
+    <div style="font-size:22px;font-weight:800;margin-bottom:6px;">কনটেন্ট ম্যানেজমেন্ট</div>
+    <div class="muted" style="font-size:13px;margin-bottom:18px;">ক্লাস, নোট ও প্রশ্নপত্র যোগ ও প্রকাশ করুন — সাথে সাথে শিক্ষার্থী অ্যাপে দেখা যাবে</div>
+    <div class="row" style="gap:8px;margin-bottom:20px;background:var(--soft);border-radius:14px;padding:4px;">
+      ${tabs.map(t=>`<div data-ctab="${t.id}" style="flex:1;text-align:center;padding:9px 6px;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;background:${S.adminContentTab===t.id?'var(--card)':'transparent'};color:${S.adminContentTab===t.id?t.color:'var(--muted)'};">${t.label}</div>`).join('')}
+    </div>
+    <div id="content-body"></div>
+  </div>`;
+}
+function wireAdminContent(){
+  document.querySelectorAll('[data-ctab]').forEach(el=>{
+    el.onclick = ()=>{ S.adminContentTab = el.dataset.ctab; render(); };
+  });
+  const body = document.getElementById('content-body');
+  if (S.adminContentTab === 'video') paintVideoAdmin(body);
+  else if (S.adminContentTab === 'notes') paintNotesAdmin(body);
+  else paintBoardAdmin(body);
+}
+
+function topicRenameWidgetHtml(){
+  const topics = S.topics;
+  return `<div class="card" style="padding:14px;margin-bottom:16px;">
+    <div style="font-size:12.5px;font-weight:800;margin-bottom:10px;">${icon('pencil',13)} টপিকের নাম পরিবর্তন করুন</div>
+    <select id="rename-topic-select" class="field-input" style="margin-bottom:10px;">
+      ${topics.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}
+    </select>
+    <input id="rename-topic-input" class="field-input" value="${topics[0]?topics[0].name:''}" style="margin-bottom:10px;" />
+    <button id="rename-topic-save" class="btn btn-dark" style="padding:9px;font-size:12.5px;">${icon('check',14)} সংরক্ষণ করুন</button>
+  </div>`;
+}
+function wireTopicRenameWidget(body, onSaved){
+  const renameSelect = body.querySelector('#rename-topic-select');
+  const renameInput = body.querySelector('#rename-topic-input');
+  if (!renameSelect || !renameInput) return;
+  renameSelect.onchange = ()=>{
+    const t = S.topics.find(x=>x.id===renameSelect.value);
+    if (t) renameInput.value = t.name;
+  };
+  body.querySelector('#rename-topic-save').onclick = async ()=>{
+    const t = S.topics.find(x=>x.id===renameSelect.value);
+    const newName = renameInput.value.trim();
+    if (!t || !newName) return;
+    t.name = newName;
+    await saveShared('lms:topics', S.topics);
+    toast('টপিকের নাম পরিবর্তন হয়েছে ✓');
+    if (onSaved) onSaved();
+  };
+}
+
+/* --- video classes admin --- */
+let adminVideoState = { activeTopic:'ratio', formMode:null, confirmDelete:null };
+function paintVideoAdmin(body){
+  const topics = S.topics;
+  const topic = topics.find(t=>t.id===adminVideoState.activeTopic) || topics[0];
+  if (!topic){ body.innerHTML = `<div class="muted">কোনো টপিক নেই</div>`; return; }
+  body.innerHTML = `
+    <div class="row between" style="margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:800;">ভিডিও ক্লাস তালিকা</div>
+      <button class="btn" id="add-lesson-btn" style="background:var(--orange);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;">${icon('plus',15)} যোগ করুন</button>
+    </div>
+    ${topicRenameWidgetHtml()}
+    <div class="row" style="gap:8px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;">
+      ${topics.map(t=>`<div data-topic="${t.id}" class="row" style="gap:6px;padding:8px 14px;border-radius:999px;white-space:nowrap;cursor:pointer;background:${t.id===topic.id?t.color:'var(--soft)'};color:${t.id===topic.id?'#fff':'var(--ink)'};font-size:13px;font-weight:700;flex-shrink:0;">
+        <span style="width:7px;height:7px;border-radius:4px;background:${t.id===topic.id?'#fff':t.color};"></span>${t.name}</div>`).join('')}
+    </div>
+    <div id="lesson-form"></div>
+    <div class="muted" style="font-size:13px;font-weight:600;margin-bottom:10px;">${topic.lessons.length}টি ভিডিও ক্লাস</div>
+    <div class="col" style="gap:12px;">
+      ${topic.lessons.length===0? `<div class="muted" style="text-align:center;padding:24px;">কোনো ভিডিও ক্লাস নেই</div>` :
+      topic.lessons.map(l=>`
+        <div class="card" style="overflow:hidden;">
+          <div style="position:relative;height:80px;${l.thumbnailUrl?`background:#000 url('${l.thumbnailUrl}') center/cover no-repeat;`:`background:linear-gradient(135deg, ${topic.color}, ${topic.color}99);`}display:flex;align-items:center;justify-content:center;">
+            <div style="width:40px;height:40px;border-radius:20px;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;color:${topic.color};">${icon('play',18)}</div>
+            <div style="position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;">${l.duration}</div>
+            <div style="position:absolute;top:8px;right:10px;display:flex;gap:6px;">
+              <button data-edit="${l.id}" class="icon-btn" style="width:26px;height:26px;background:rgba(255,255,255,0.9);">${icon('pencil',12)}</button>
+              <button data-del="${l.id}" class="icon-btn" style="width:26px;height:26px;background:rgba(255,255,255,0.9);color:var(--red);">${icon('trash',12)}</button>
+            </div>
+          </div>
+          ${adminVideoState.confirmDelete===l.id ? `
+          <div class="row between" style="padding:12px;background:var(--red-soft);">
+            <span style="font-size:13px;font-weight:700;color:var(--red);">এই ক্লাসটি মুছে ফেলবেন?</span>
+            <div class="row" style="gap:8px;">
+              <div data-cancel-del style="font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;padding:6px 10px;">বাতিল</div>
+              <div data-confirm-del="${l.id}" style="font-size:12px;font-weight:700;color:#fff;background:var(--red);cursor:pointer;padding:6px 12px;border-radius:999px;">মুছে ফেলুন</div>
+            </div>
+          </div>` : `
+          <div class="row" style="padding:12px;gap:10px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:700;">${l.title}</div>
+              <div class="muted" style="font-size:12px;margin-top:2px;">${l.views||0} বার দেখা হয়েছে</div>
+            </div>
+            <div data-pub="${l.id}" class="row" style="gap:5px;cursor:pointer;padding:6px 10px;border-radius:999px;background:${l.published?'var(--green-soft)':'var(--soft)'};flex-shrink:0;">
+              ${icon(l.published?'eye':'eyeoff',13)}
+              <span style="font-size:11px;font-weight:700;color:${l.published?'var(--green)':'var(--muted)'};">${l.published?'প্রকাশিত':'খসড়া'}</span>
+            </div>
+          </div>`}
+        </div>`).join('')}
+    </div>`;
+
+  body.querySelectorAll('[data-topic]').forEach(el=>{
+    el.onclick = ()=>{ adminVideoState.activeTopic = el.dataset.topic; adminVideoState.formMode=null; paintVideoAdmin(body); };
+  });
+  const renameSelect = body.querySelector('#rename-topic-select');
+  const renameInput = body.querySelector('#rename-topic-input');
+  if (renameSelect){
+    const t0 = topics.find(x=>x.id===topic.id);
+    if (t0) renameSelect.value = t0.id;
+    renameInput.value = topic.name;
+  }
+  wireTopicRenameWidget(body, ()=>paintVideoAdmin(body));
+  body.querySelector('#add-lesson-btn').onclick = ()=>{ adminVideoState.formMode='add'; paintVideoAdmin(body); paintLessonForm(topic); };
+  body.querySelectorAll('[data-edit]').forEach(el=>{
+    el.onclick = ()=>{ adminVideoState.formMode = el.dataset.edit; paintVideoAdmin(body); paintLessonForm(topic); };
+  });
+  body.querySelectorAll('[data-del]').forEach(el=>{
+    el.onclick = ()=>{ adminVideoState.confirmDelete = el.dataset.del; paintVideoAdmin(body); };
+  });
+  const cancelDel = body.querySelector('[data-cancel-del]');
+  if (cancelDel) cancelDel.onclick = ()=>{ adminVideoState.confirmDelete=null; paintVideoAdmin(body); };
+  const confirmDel = body.querySelector('[data-confirm-del]');
+  if (confirmDel) confirmDel.onclick = async ()=>{
+    const id = confirmDel.dataset.confirmDel;
+    topic.lessons = topic.lessons.filter(l=>l.id!==id);
+    await saveShared('lms:topics', S.topics);
+    adminVideoState.confirmDelete = null;
+    toast('ক্লাসটি মুছে ফেলা হয়েছে');
+    paintVideoAdmin(body);
+  };
+  if (adminVideoState.formMode) paintLessonForm(topic);
+
+  function paintLessonForm(topic){
+    const formEl = body.querySelector('#lesson-form');
+    const isAdd = adminVideoState.formMode === 'add';
+    const existing = isAdd ? null : topic.lessons.find(l=>l.id===adminVideoState.formMode);
+    formEl.innerHTML = `
+      <div class="card" style="padding:16px;margin-bottom:16px;">
+        <div class="row between" style="margin-bottom:12px;">
+          <span style="font-size:14px;font-weight:800;">${isAdd?'নতুন ভিডিও ক্লাস':'ক্লাস সম্পাদনা করুন'}</span>
+          <button class="icon-btn" id="close-lform">${icon('x',15)}</button>
+        </div>
+        <div class="field-label">শিরোনাম</div>
+        <input id="lf-title" class="field-input" value="${existing?existing.title:''}" placeholder="ক্লাসের নাম লিখুন" style="margin-bottom:10px;" />
+        <div class="field-label">সময়কাল</div>
+        <input id="lf-duration" class="field-input" value="${existing?existing.duration:''}" placeholder="যেমন: ১৫ মিনিট" style="margin-bottom:10px;" />
+        <div class="field-label">ভিডিও লিংক (YouTube) অথবা সরাসরি ভিডিও ফাইল আপলোড</div>
+        <input id="lf-video" class="field-input" value="${existing?existing.videoUrl||'':''}" placeholder="https://youtube.com/watch?v=..." style="margin-bottom:10px;" />
+        <div id="lf-video-upload-container"></div>
+        <div id="lf-preview"></div>
+        <div class="field-label">থাম্বনেইল ছবি (ঐচ্ছিক)</div>
+        <input id="lf-thumbnail" class="field-input" value="${existing?existing.thumbnailUrl||'':''}" placeholder="ছবির লিংক অথবা নিচে থেকে আপলোড করুন" style="margin-bottom:10px;" />
+        <div id="lf-thumb-container"></div>
+        <div id="lf-thumb-preview"></div>
+        <div class="field-label">বিবরণ (ঐচ্ছিক — এই ভিডিওর জন্য আলাদা লেখা)</div>
+        <textarea id="lf-description" class="field-input" placeholder="এই পাঠে কী শেখানো হয়েছে সংক্ষেপে লিখুন... (ফাঁকা রাখলে ডিফল্ট বিবরণ দেখাবে)" style="margin-bottom:10px;min-height:90px;resize:vertical;font-family:inherit;">${existing?existing.description||'':''}</textarea>
+        <button class="btn btn-dark" id="lf-save" style="margin-top:4px;">${icon('check',15)} সংরক্ষণ করুন</button>
+      </div>`;
+    attachUploadWidget('lf-thumb-container', 'lf-thumbnail', 'thumbnails', 'image/*', 'ফোন থেকে ছবি আপলোড করুন');
+    function paintThumbPreview(){
+      const url = document.getElementById('lf-thumbnail').value.trim();
+      const el = document.getElementById('lf-thumb-preview');
+      el.innerHTML = url ? `<div style="margin-bottom:14px;"><img src="${url}" style="width:100%;max-height:160px;object-fit:cover;border-radius:12px;border:1px solid var(--line);" onerror="this.style.display='none'" /></div>` : '';
+    }
+    document.getElementById('lf-thumbnail').addEventListener('input', paintThumbPreview);
+    paintThumbPreview();
+    formEl.querySelector('#close-lform').onclick = ()=>{ adminVideoState.formMode=null; paintVideoAdmin(body); };
+
+    attachUploadWidget('lf-video-upload-container', 'lf-video', 'videos', 'video/*', 'ফোন থেকে ভিডিও ফাইল আপলোড করুন (বড় ফাইলে সময় লাগতে পারে)');
+    function paintVideoPreview(){
+      const url = document.getElementById('lf-video').value.trim();
+      const previewEl = document.getElementById('lf-preview');
+      const embed = ytEmbed(url);
+      const directVideo = !embed && isDirectVideo(url);
+      if (!url){
+        previewEl.innerHTML = '';
+      } else if (embed){
+        previewEl.innerHTML = `
+          <div style="margin-bottom:14px;">
+            <div class="muted" style="font-size:11.5px;font-weight:700;margin-bottom:6px;">${icon('eye',12)} প্রিভিউ</div>
+            <div style="position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000;">
+              <iframe src="${embed}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>`;
+      } else if (directVideo){
+        previewEl.innerHTML = `
+          <div style="margin-bottom:14px;">
+            <div class="muted" style="font-size:11.5px;font-weight:700;margin-bottom:6px;">${icon('eye',12)} প্রিভিউ (আপলোড করা ভিডিও)</div>
+            <video src="${url}" controls playsinline style="width:100%;border-radius:12px;background:#000;max-height:220px;"></video>
+          </div>`;
+      } else {
+        previewEl.innerHTML = `<div class="muted" style="font-size:11.5px;margin-bottom:14px;color:var(--red);">${icon('xcircle',12)} বৈধ YouTube লিংক বা ভিডিও ফাইল মনে হচ্ছে না — প্রিভিউ দেখানো যাচ্ছে না</div>`;
+      }
+    }
+    document.getElementById('lf-video').addEventListener('input', paintVideoPreview);
+    paintVideoPreview();
+    formEl.querySelector('#lf-save').onclick = async ()=>{
+      const title = document.getElementById('lf-title').value.trim();
+      if (!title) return;
+      const duration = document.getElementById('lf-duration').value.trim() || '০ মিনিট';
+      const videoUrl = document.getElementById('lf-video').value.trim();
+      const thumbnailUrl = document.getElementById('lf-thumbnail').value.trim();
+      const description = document.getElementById('lf-description').value.trim();
+      if (isAdd){
+        topic.lessons.push({ id:'lsn-'+Date.now(), title, duration, videoUrl, thumbnailUrl, description, views:0, published:false });
+      } else {
+        Object.assign(existing, { title, duration, videoUrl, thumbnailUrl, description });
+      }
+      await saveShared('lms:topics', S.topics);
+      adminVideoState.formMode = null;
+      toast('সংরক্ষণ করা হয়েছে ✓');
+      paintVideoAdmin(body);
+    };
+  }
+
+  body.querySelectorAll('[data-pub]').forEach(el=>{
+    el.onclick = async ()=>{
+      const l = topic.lessons.find(x=>x.id===el.dataset.pub);
+      l.published = !l.published;
+      await saveShared('lms:topics', S.topics);
+      paintVideoAdmin(body);
+    };
+  });
+}
+
+/* --- notes admin --- */
+let adminNotesState = { formMode:null, confirmDelete:null };
+function paintNotesAdmin(body){
+  const topics = S.topics, notes = S.notes;
+  body.innerHTML = `
+    <div class="row between" style="margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:800;">পিডিএফ নোট তালিকা</div>
+      <button class="btn" id="add-note-btn" style="background:var(--blue);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;">${icon('plus',15)} যোগ করুন</button>
+    </div>
+    ${topicRenameWidgetHtml()}
+    <div id="note-form"></div>
+    <div class="muted" style="font-size:13px;font-weight:600;margin-bottom:10px;">${notes.length}টি পিডিএফ নোট</div>
+    <div class="col" style="gap:10px;">
+      ${notes.length===0? `<div class="muted" style="text-align:center;padding:24px;">কোনো পিডিএফ নোট নেই</div>` :
+      notes.map(n=>{
+        const t = topics.find(x=>x.id===n.topicId);
+        return `<div class="card" style="padding:12px;">
+          ${adminNotesState.confirmDelete===n.id ? `
+          <div class="row between">
+            <span style="font-size:13px;font-weight:700;color:var(--red);">এই নোটটি মুছে ফেলবেন?</span>
+            <div class="row" style="gap:8px;">
+              <div data-cancel-del style="font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;padding:6px 10px;">বাতিল</div>
+              <div data-confirm-del="${n.id}" style="font-size:12px;font-weight:700;color:#fff;background:var(--red);cursor:pointer;padding:6px 12px;border-radius:999px;">মুছে ফেলুন</div>
+            </div>
+          </div>` : `
+          <div class="row" style="gap:12px;">
+            <div style="width:40px;height:40px;border-radius:11px;background:${t?t.soft:'var(--soft)'};color:${t?t.color:'var(--muted)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('file',18)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13.5px;font-weight:700;">${n.title}</div>
+              <div class="muted" style="font-size:11.5px;margin-top:2px;">${t?t.name:'টপিক নেই'} · ${n.pages} পৃষ্ঠা</div>
+            </div>
+            <button data-edit="${n.id}" class="icon-btn" style="width:26px;height:26px;flex-shrink:0;">${icon('pencil',12)}</button>
+            <button data-del="${n.id}" class="icon-btn" style="width:26px;height:26px;flex-shrink:0;">${icon('trash',12)}</button>
+            <div data-pub="${n.id}" class="row" style="gap:4px;cursor:pointer;padding:6px 9px;border-radius:999px;background:${n.published?'var(--green-soft)':'var(--soft)'};flex-shrink:0;">${icon(n.published?'eye':'eyeoff',12)}</div>
+          </div>`}
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  body.querySelector('#add-note-btn').onclick = ()=>{ adminNotesState.formMode='add'; chosenTopic = topics[0]?topics[0].id:''; paintForm(); };
+  wireTopicRenameWidget(body, ()=>paintNotesAdmin(body));
+  body.querySelectorAll('[data-edit]').forEach(el=>{ el.onclick = ()=>{
+    adminNotesState.formMode = el.dataset.edit;
+    const ex = S.notes.find(n=>n.id===el.dataset.edit);
+    chosenTopic = ex ? ex.topicId : (topics[0]?topics[0].id:'');
+    paintForm();
+  }; });
+  body.querySelectorAll('[data-del]').forEach(el=>{ el.onclick = ()=>{ adminNotesState.confirmDelete = el.dataset.del; paintNotesAdmin(body); }; });
+  const cancelDel = body.querySelector('[data-cancel-del]');
+  if (cancelDel) cancelDel.onclick = ()=>{ adminNotesState.confirmDelete=null; paintNotesAdmin(body); };
+  const confirmDel = body.querySelector('[data-confirm-del]');
+  if (confirmDel) confirmDel.onclick = async ()=>{
+    const id = confirmDel.dataset.confirmDel;
+    S.notes = S.notes.filter(n=>n.id!==id);
+    await saveShared('lms:notes', S.notes);
+    adminNotesState.confirmDelete = null;
+    toast('নোটটি মুছে ফেলা হয়েছে');
+    paintNotesAdmin(body);
+  };
+  body.querySelectorAll('[data-pub]').forEach(el=>{
+    el.onclick = async ()=>{
+      const n = S.notes.find(x=>x.id===el.dataset.pub);
+      n.published = !n.published;
+      await saveShared('lms:notes', S.notes);
+      paintNotesAdmin(body);
+    };
+  });
+  if (adminNotesState.formMode){
+    if (adminNotesState.formMode !== 'add'){
+      const ex = S.notes.find(n=>n.id===adminNotesState.formMode);
+      if (ex) chosenTopic = ex.topicId;
+    }
+    paintForm();
+  }
+
+  let chosenTopic = topics[0] ? topics[0].id : '';
+  function paintForm(){
+    const formEl = document.getElementById('note-form');
+    const isAdd = adminNotesState.formMode==='add';
+    const existing = isAdd? null : S.notes.find(n=>n.id===adminNotesState.formMode);
+    formEl.innerHTML = `
+      <div class="card" style="padding:16px;margin-bottom:16px;">
+        <div class="row between" style="margin-bottom:12px;">
+          <span style="font-size:14px;font-weight:800;">${isAdd?'নতুন পিডিএফ নোট':'নোট সম্পাদনা করুন'}</span>
+          <button class="icon-btn" id="close-nform">${icon('x',15)}</button>
+        </div>
+        <div class="field-label">টপিক</div>
+        <div class="row" id="nf-topics" style="gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:10px;">
+          ${topics.map(t=>`<div data-t="${t.id}" style="padding:7px 12px;border-radius:999px;white-space:nowrap;cursor:pointer;font-size:12px;font-weight:700;background:${t.id===chosenTopic?t.color:'var(--soft)'};color:${t.id===chosenTopic?'#fff':'var(--ink)'};flex-shrink:0;">${t.name}</div>`).join('')}
+        </div>
+        <div class="field-label">শিরোনাম</div>
+        <input id="nf-title" class="field-input" value="${existing?existing.title:''}" placeholder="নোটের নাম লিখুন" style="margin-bottom:10px;" />
+        <div class="row" style="gap:10px;margin-bottom:10px;">
+          <div style="flex:1;"><div class="field-label">পৃষ্ঠা সংখ্যা</div><input id="nf-pages" class="field-input" value="${existing?existing.pages:''}" placeholder="৬" /></div>
+          <div style="flex:1;"><div class="field-label">ফাইলের সাইজ</div><input id="nf-size" class="field-input" value="${existing?existing.size:''}" placeholder="১.৫ MB" /></div>
+        </div>
+        <div class="field-label">পিডিএফ লিংক</div>
+        <input id="nf-url" class="field-input" value="${existing?existing.url||'':''}" placeholder="https://example.com/note.pdf অথবা নিচে থেকে আপলোড করুন" style="margin-bottom:10px;" />
+        <div id="nf-upload-container"></div>
+        <div id="nf-preview"></div>
+        <button class="btn btn-dark" id="nf-save" style="margin-top:4px;">${icon('check',15)} সংরক্ষণ করুন</button>
+      </div>`;
+    attachUploadWidget('nf-upload-container', 'nf-url', 'notes', 'application/pdf', 'ফোন থেকে PDF আপলোড করুন');
+    formEl.querySelector('#close-nform').onclick = ()=>{ adminNotesState.formMode=null; paintNotesAdmin(body); };
+
+    function paintPdfPreview(){
+      const url = document.getElementById('nf-url').value.trim();
+      const previewEl = document.getElementById('nf-preview');
+      if (!url){
+        previewEl.innerHTML = '';
+      } else {
+        previewEl.innerHTML = `
+          <div style="margin-bottom:14px;">
+            <div class="row between" style="margin-bottom:6px;">
+              <span class="muted" style="font-size:11.5px;font-weight:700;">${icon('eye',12)} প্রিভিউ</span>
+              <a href="${url}" target="_blank" rel="noopener noreferrer" class="muted" style="font-size:11px;font-weight:700;color:var(--blue);text-decoration:none;">নতুন ট্যাবে খুলুন ↗</a>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--line);height:260px;background:var(--soft);">
+              <iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>
+            </div>
+            <div class="muted" style="font-size:10.5px;margin-top:4px;">যদি প্রিভিউ ফাঁকা দেখায়, লিংক সঠিক আছে কিনা "নতুন ট্যাবে খুলুন" চেপে যাচাই করুন</div>
+          </div>`;
+      }
+    }
+    document.getElementById('nf-url').addEventListener('input', paintPdfPreview);
+    paintPdfPreview();
+    formEl.querySelectorAll('[data-t]').forEach(el=>{
+      el.onclick = ()=>{ chosenTopic = el.dataset.t; paintForm(); };
+    });
+    formEl.querySelector('#nf-save').onclick = async ()=>{
+      const title = document.getElementById('nf-title').value.trim();
+      if (!title || !chosenTopic) return;
+      const pages = Number(document.getElementById('nf-pages').value)||0;
+      const size = document.getElementById('nf-size').value.trim() || '—';
+      const url = document.getElementById('nf-url').value.trim();
+      if (isAdd){
+        S.notes.push({ id:'note-'+Date.now(), topicId:chosenTopic, title, pages, size, url, published:false });
+      } else {
+        Object.assign(existing, { topicId:chosenTopic, title, pages, size, url });
+      }
+      await saveShared('lms:notes', S.notes);
+      adminNotesState.formMode = null;
+      toast('সংরক্ষণ করা হয়েছে ✓');
+      paintNotesAdmin(body);
+    };
+  }
+}
+
+/* --- board questions admin --- */
+let adminBoardState = { activeBoard:null, formMode:null, confirmDelete:null, confirmDeleteBoard:null };
+function paintBoardAdmin(body){
+  const qs = S.boardQuestions;
+  const boards = [...new Set(qs.map(q=>q.board))];
+  if (adminBoardState.activeBoard && !boards.includes(adminBoardState.activeBoard)){
+    adminBoardState.activeBoard = null;
+  }
+
+  if (adminBoardState.activeBoard){
+    paintBoardYearsAdmin(body, adminBoardState.activeBoard);
+    return;
+  }
+  paintBoardListAdmin(body);
+}
+
+function bnDigitsToEn(s){
+  const map = {'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};
+  return (s||'').replace(/[০-৯]/g, d=>map[d]);
+}
+function enToBnDigits(n){
+  const map = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  return String(n).split('').map(c=> /[0-9]/.test(c) ? map[+c] : c).join('');
+}
+
+/* level 1: list of boards */
+function paintBoardListAdmin(body){
+  const qs = S.boardQuestions;
+  const boards = [...new Set(qs.map(q=>q.board))];
+  body.innerHTML = `
+    <div class="row between" style="margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:800;">বোর্ড তালিকা</div>
+      <button class="btn" id="add-board-btn" style="background:var(--green);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;">${icon('plus',15)} নতুন বোর্ড</button>
+    </div>
+    ${boards.length ? `<div class="card" style="padding:14px;margin-bottom:16px;">
+      <div style="font-size:12.5px;font-weight:800;margin-bottom:10px;">${icon('pencil',13)} বোর্ডের নাম পরিবর্তন করুন</div>
+      <select id="rename-board-select" class="field-input" style="margin-bottom:10px;">
+        ${boards.map(b=>`<option value="${b}">${b}</option>`).join('')}
+      </select>
+      <input id="rename-board-input" class="field-input" value="${boards[0]||''}" style="margin-bottom:10px;" />
+      <button id="rename-board-save" class="btn btn-dark" style="padding:9px;font-size:12.5px;">${icon('check',14)} সংরক্ষণ করুন</button>
+    </div>` : ''}
+    <div id="new-board-form"></div>
+    <div class="muted" style="font-size:13px;font-weight:600;margin-bottom:10px;">${boards.length}টি বোর্ড</div>
+    <div class="col" style="gap:10px;">
+      ${boards.length===0? `<div class="muted" style="text-align:center;padding:24px;">কোনো বোর্ড নেই</div>` :
+      boards.map(b=>{
+        const count = qs.filter(q=>q.board===b).length;
+        const published = qs.filter(q=>q.board===b && q.published!==false).length;
+        if (adminBoardState.confirmDeleteBoard===b){
+          return `
+          <div class="card" style="padding:14px;">
+            <div class="row between">
+              <span style="font-size:13px;font-weight:700;color:var(--red);">"${b}" ও এর সব (${count}টি) প্রশ্নপত্র মুছে ফেলবেন?</span>
+              <div class="row" style="gap:8px;flex-shrink:0;">
+                <div data-cancel-del-board style="font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;padding:6px 10px;">বাতিল</div>
+                <div data-confirm-del-board="${b}" style="font-size:12px;font-weight:700;color:#fff;background:var(--red);cursor:pointer;padding:6px 12px;border-radius:999px;">মুছে ফেলুন</div>
+              </div>
+            </div>
+          </div>`;
+        }
+        return `
+        <div class="card row" style="padding:14px;gap:10px;">
+          <div class="row board-nav-row" data-board="${b}" style="gap:12px;cursor:pointer;flex:1;min-width:0;">
+            <div style="width:42px;height:42px;border-radius:12px;background:var(--soft);color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('clipboard',18)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:700;">${b}</div>
+              <div class="muted" style="font-size:12px;margin-top:2px;">${count}টি সাল · ${published}টি প্রকাশিত</div>
+            </div>
+          </div>
+          <button data-del-board="${b}" class="icon-btn" style="width:30px;height:30px;flex-shrink:0;">${icon('trash',14)}</button>
+          <span style="color:var(--muted);flex-shrink:0;" class="board-nav-row" data-board="${b}">${icon('chevronright',18)}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  body.querySelectorAll('.board-nav-row').forEach(el=>{
+    el.onclick = ()=>{ adminBoardState.activeBoard = el.dataset.board; adminBoardState.formMode=null; render(); };
+  });
+  body.querySelectorAll('[data-del-board]').forEach(el=>{
+    el.onclick = (e)=>{ e.stopPropagation(); adminBoardState.confirmDeleteBoard = el.dataset.delBoard; paintBoardListAdmin(body); };
+  });
+  const cancelDelBoard = body.querySelector('[data-cancel-del-board]');
+  if (cancelDelBoard) cancelDelBoard.onclick = ()=>{ adminBoardState.confirmDeleteBoard = null; paintBoardListAdmin(body); };
+  const confirmDelBoard = body.querySelector('[data-confirm-del-board]');
+  if (confirmDelBoard) confirmDelBoard.onclick = async ()=>{
+    const b = confirmDelBoard.dataset.confirmDelBoard;
+    S.boardQuestions = S.boardQuestions.filter(q=>q.board!==b);
+    await saveShared('lms:boardquestions', S.boardQuestions);
+    adminBoardState.confirmDeleteBoard = null;
+    toast(`"${b}" মুছে ফেলা হয়েছে`);
+    paintBoardListAdmin(body);
+  };
+  body.querySelector('#add-board-btn').onclick = ()=>{ adminBoardState.formMode='newboard'; paintNewBoardForm(body); };
+  const renameBoardSelect = body.querySelector('#rename-board-select');
+  const renameBoardInput = body.querySelector('#rename-board-input');
+  if (renameBoardSelect){
+    renameBoardSelect.onchange = ()=>{ renameBoardInput.value = renameBoardSelect.value; };
+    body.querySelector('#rename-board-save').onclick = async ()=>{
+      const oldName = renameBoardSelect.value;
+      const newName = renameBoardInput.value.trim();
+      if (!newName || newName===oldName) return;
+      S.boardQuestions.forEach(q=>{ if (q.board===oldName) q.board = newName; });
+      await saveShared('lms:boardquestions', S.boardQuestions);
+      toast('বোর্ডের নাম পরিবর্তন হয়েছে ✓');
+      paintBoardListAdmin(body);
+    };
+  }
+  if (adminBoardState.formMode==='newboard') paintNewBoardForm(body);
+
+  function paintNewBoardForm(body){
+    const formEl = document.getElementById('new-board-form');
+    formEl.innerHTML = `
+      <div class="card" style="padding:16px;margin-bottom:16px;">
+        <div class="row between" style="margin-bottom:12px;">
+          <span style="font-size:14px;font-weight:800;">নতুন বোর্ড ও প্রশ্নপত্র</span>
+          <button class="icon-btn" id="close-newboard">${icon('x',15)}</button>
+        </div>
+        <div class="field-label">বোর্ডের নাম</div>
+        <input id="nb-board" class="field-input" placeholder="যেমন: খুলনা বোর্ড" style="margin-bottom:10px;" />
+        <div class="row" style="gap:10px;margin-bottom:10px;">
+          <div style="flex:1;"><div class="field-label">শুরুর সাল</div><input id="nb-year-start" class="field-input" placeholder="২০১৫" /></div>
+          <div style="flex:1;"><div class="field-label">শেষ সাল</div><input id="nb-year-end" class="field-input" placeholder="২০২৬" /></div>
+        </div>
+        <div class="muted" style="font-size:11px;margin-bottom:10px;">প্রতিটি সালের জন্য আলাদা প্রশ্নপত্র এন্ট্রি তৈরি হবে — পরে বোর্ডে ঢুকে প্রতিটি এডিট করে নিজস্ব পিডিএফ লিংক বসাতে পারবেন।</div>
+        <div class="field-label">শিরোনাম</div>
+        <input id="nb-title" class="field-input" value="এসএসসি — গণিত (ত্রিকোণমিতি অংশ)" style="margin-bottom:10px;" />
+        <div class="field-label">পিডিএফ লিংক (সব সালের জন্য একই, ঐচ্ছিক)</div>
+        <input id="nb-url" class="field-input" placeholder="https://example.com/question.pdf" style="margin-bottom:10px;" />
+        <button class="btn btn-dark" id="nb-save">${icon('check',15)} সংরক্ষণ করুন</button>
+      </div>`;
+    formEl.querySelector('#close-newboard').onclick = ()=>{ adminBoardState.formMode=null; paintBoardListAdmin(body); };
+    formEl.querySelector('#nb-save').onclick = async ()=>{
+      const board = document.getElementById('nb-board').value.trim();
+      const yStartRaw = document.getElementById('nb-year-start').value.trim();
+      const yEndRaw = document.getElementById('nb-year-end').value.trim();
+      const title = document.getElementById('nb-title').value.trim() || 'এসএসসি — গণিত (ত্রিকোণমিতি অংশ)';
+      const url = document.getElementById('nb-url').value.trim();
+      const yStart = parseInt(bnDigitsToEn(yStartRaw), 10);
+      const yEnd = parseInt(bnDigitsToEn(yEndRaw), 10);
+      if (!board || !yStart || !yEnd) return;
+      const lo = Math.min(yStart, yEnd), hi = Math.max(yStart, yEnd);
+      for (let y=hi; y>=lo; y--){
+        S.boardQuestions.push({ id:'bq-'+board.replace(/\s+/g,'')+'-'+y+'-'+Date.now()+Math.random().toString(36).slice(2,6), year: enToBnDigits(y), board, title, url, published:false });
+      }
+      await saveShared('lms:boardquestions', S.boardQuestions);
+      adminBoardState.formMode = null;
+      adminBoardState.activeBoard = board;
+      toast('সংরক্ষণ করা হয়েছে ✓');
+      render();
+    };
+  }
+}
+
+
+/* level 2: years within a selected board */
+function paintBoardYearsAdmin(body, boardName){
+  const items = S.boardQuestions.filter(q=>q.board===boardName).sort((a,b)=>b.year.localeCompare(a.year));
+  body.innerHTML = `
+    <div class="row" style="gap:8px;margin-bottom:14px;">
+      <button class="icon-btn" id="bq-back-to-boards">${icon('chevronleft',16)}</button>
+      <div style="font-size:15px;font-weight:800;">${boardName}</div>
+    </div>
+    <div class="row between" style="margin-bottom:14px;">
+      <div class="muted" style="font-size:13px;font-weight:600;">${items.length}টি সাল</div>
+      <button class="btn" id="add-bq-btn" style="background:var(--green);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;">${icon('plus',15)} যোগ করুন</button>
+    </div>
+    <div id="bq-form"></div>
+    <div class="col" style="gap:10px;">
+      ${items.length===0? `<div class="muted" style="text-align:center;padding:24px;">এই বোর্ডে এখনো কোনো প্রশ্নপত্র নেই</div>` :
+      items.map(q=>`
+        <div class="card" style="padding:12px;">
+          ${adminBoardState.confirmDelete===q.id ? `
+          <div class="row between">
+            <span style="font-size:13px;font-weight:700;color:var(--red);">এই প্রশ্নপত্র মুছে ফেলবেন?</span>
+            <div class="row" style="gap:8px;">
+              <div data-cancel-del style="font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;padding:6px 10px;">বাতিল</div>
+              <div data-confirm-del="${q.id}" style="font-size:12px;font-weight:700;color:#fff;background:var(--red);cursor:pointer;padding:6px 12px;border-radius:999px;">মুছে ফেলুন</div>
+            </div>
+          </div>` : `
+          <div class="row" style="gap:12px;">
+            <div style="width:40px;height:40px;border-radius:11px;background:var(--soft);color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icon('file',18)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13.5px;font-weight:700;">${q.year} সাল</div>
+              <div class="muted" style="font-size:11.5px;margin-top:2px;">${q.title}</div>
+            </div>
+            <button data-edit="${q.id}" class="icon-btn" style="width:26px;height:26px;flex-shrink:0;">${icon('pencil',12)}</button>
+            <button data-del="${q.id}" class="icon-btn" style="width:26px;height:26px;flex-shrink:0;">${icon('trash',12)}</button>
+            <div data-pub="${q.id}" class="row" style="gap:4px;cursor:pointer;padding:6px 9px;border-radius:999px;background:${q.published?'var(--green-soft)':'var(--soft)'};flex-shrink:0;">${icon(q.published?'eye':'eyeoff',12)}</div>
+          </div>`}
+        </div>`).join('')}
+    </div>`;
+
+  document.getElementById('bq-back-to-boards').onclick = ()=>{ adminBoardState.activeBoard=null; adminBoardState.formMode=null; render(); };
+  body.querySelector('#add-bq-btn').onclick = ()=>{ adminBoardState.formMode='add'; paintForm(); };
+  body.querySelectorAll('[data-edit]').forEach(el=>{ el.onclick = ()=>{ adminBoardState.formMode = el.dataset.edit; paintForm(); }; });
+  body.querySelectorAll('[data-del]').forEach(el=>{ el.onclick = ()=>{ adminBoardState.confirmDelete = el.dataset.del; paintBoardYearsAdmin(body, boardName); }; });
+  const cancelDel = body.querySelector('[data-cancel-del]');
+  if (cancelDel) cancelDel.onclick = ()=>{ adminBoardState.confirmDelete=null; paintBoardYearsAdmin(body, boardName); };
+  const confirmDel = body.querySelector('[data-confirm-del]');
+  if (confirmDel) confirmDel.onclick = async ()=>{
+    const id = confirmDel.dataset.confirmDel;
+    S.boardQuestions = S.boardQuestions.filter(q=>q.id!==id);
+    await saveShared('lms:boardquestions', S.boardQuestions);
+    adminBoardState.confirmDelete = null;
+    toast('প্রশ্নপত্রটি মুছে ফেলা হয়েছে');
+    paintBoardYearsAdmin(body, boardName);
+  };
+  body.querySelectorAll('[data-pub]').forEach(el=>{
+    el.onclick = async ()=>{
+      const q = S.boardQuestions.find(x=>x.id===el.dataset.pub);
+      q.published = !q.published;
+      await saveShared('lms:boardquestions', S.boardQuestions);
+      paintBoardYearsAdmin(body, boardName);
+    };
+  });
+  if (adminBoardState.formMode) paintForm();
+
+  function paintForm(){
+    const formEl = document.getElementById('bq-form');
+    const isAdd = adminBoardState.formMode==='add';
+    const existing = isAdd? null : S.boardQuestions.find(q=>q.id===adminBoardState.formMode);
+    formEl.innerHTML = `
+      <div class="card" style="padding:16px;margin-bottom:16px;">
+        <div class="row between" style="margin-bottom:12px;">
+          <span style="font-size:14px;font-weight:800;">${isAdd?'নতুন প্রশ্নপত্র':'প্রশ্নপত্র সম্পাদনা করুন'}</span>
+          <button class="icon-btn" id="close-bqform">${icon('x',15)}</button>
+        </div>
+        <div class="field-label">সাল (যেমন: ২০২৬)</div>
+        <input id="bq-year" class="field-input" value="${existing?existing.year:''}" placeholder="২০২৬" style="margin-bottom:10px;" />
+        <div class="field-label">শিরোনাম</div>
+        <input id="bq-title" class="field-input" value="${existing?existing.title:'এসএসসি — গণিত (ত্রিকোণমিতি অংশ)'}" placeholder="শিরোনাম লিখুন" style="margin-bottom:10px;" />
+        <div class="field-label">পিডিএফ লিংক</div>
+        <input id="bq-url" class="field-input" value="${existing?existing.url||'':''}" placeholder="https://example.com/question.pdf অথবা নিচে থেকে আপলোড করুন" style="margin-bottom:10px;" />
+        <div id="bq-upload-container"></div>
+        <div id="bq-preview"></div>
+        <button class="btn btn-dark" id="bq-save" style="margin-top:4px;">${icon('check',15)} সংরক্ষণ করুন</button>
+      </div>`;
+    attachUploadWidget('bq-upload-container', 'bq-url', 'board-questions', 'application/pdf', 'ফোন থেকে PDF আপলোড করুন');
+    formEl.querySelector('#close-bqform').onclick = ()=>{ adminBoardState.formMode=null; paintBoardYearsAdmin(body, boardName); };
+
+    function paintPdfPreview(){
+      const url = document.getElementById('bq-url').value.trim();
+      const previewEl = document.getElementById('bq-preview');
+      if (!url){
+        previewEl.innerHTML = '';
+      } else {
+        previewEl.innerHTML = `
+          <div style="margin-bottom:14px;">
+            <div class="row between" style="margin-bottom:6px;">
+              <span class="muted" style="font-size:11.5px;font-weight:700;">${icon('eye',12)} প্রিভিউ</span>
+              <a href="${url}" target="_blank" rel="noopener noreferrer" class="muted" style="font-size:11px;font-weight:700;color:var(--blue);text-decoration:none;">নতুন ট্যাবে খুলুন ↗</a>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--line);height:260px;background:var(--soft);">
+              <iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>
+            </div>
+          </div>`;
+      }
+    }
+    document.getElementById('bq-url').addEventListener('input', paintPdfPreview);
+    paintPdfPreview();
+
+    formEl.querySelector('#bq-save').onclick = async ()=>{
+      const year = document.getElementById('bq-year').value.trim();
+      const title = document.getElementById('bq-title').value.trim() || 'এসএসসি — গণিত (ত্রিকোণমিতি অংশ)';
+      const url = document.getElementById('bq-url').value.trim();
+      if (!year) return;
+      if (isAdd){
+        S.boardQuestions.push({ id:'bq-'+Date.now(), year, board:boardName, title, url, published:false });
+      } else {
+        Object.assign(existing, { year, title, url });
+      }
+      await saveShared('lms:boardquestions', S.boardQuestions);
+      adminBoardState.formMode = null;
+      toast('সংরক্ষণ করা হয়েছে ✓');
+      paintBoardYearsAdmin(body, boardName);
+    };
+  }
+}
+
+/* ---------- go ---------- */
+boot();
+</script>
+</body>
+</html>
